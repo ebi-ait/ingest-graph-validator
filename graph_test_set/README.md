@@ -22,11 +22,6 @@ do not exist.
 #### Test description
 Files must be attached to something, unless they are a supplementary file. Those will be covered in other test.
 The next query should help show the files which are not supplementary files and their first link, for visual checks:
-----
-MATCH path = (f:file)-[r]-(n)
-WHERE NOT f:supplementary_file
-RETURN path
-----
 
 ## Test: No biomaterials are disconnected
 #### Test description
@@ -46,11 +41,6 @@ Checks that file nodes have no outwards relationships.
 #### Test description
 The biomaterial linked to the process linked to a sequence file must be a cell suspension.
 This next query should provide all the subgraphs in the form (file)-(process)-(biomaterial).
-----
-MATCH path = (b:biomaterial)-[:INPUT_TO_PROCESSES]->(p:process)<-[:DERIVED_BY_PROCESSES]-(f:file)
-WHERE b:cell_suspension
-RETURN path
-----
 
 ## Test: Experimental design is acyclical
 #### Test description
