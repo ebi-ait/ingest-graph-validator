@@ -1,7 +1,7 @@
 ---
 name: Test addition
 about: Use this template to request new tests.
-title: [DATE]: <TEST_REQUEST_SHORTNAME>
+title: "[DATE]: <TEST_REQUEST_SHORTNAME>"
 labels: test request
 ---
 **Describe the issue**
