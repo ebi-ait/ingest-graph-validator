@@ -30,7 +30,7 @@ def create_index(test_folder: str = "graph_test_set", wildcard= "*.adoc", recurs
     :param recursive: boolean indicating if recursivity is expected. If recursive is true, please use proper wildcard
     :returns buffer: Content of the index part of the readme
     """
-    buffer = f"# Index of tests currently performed by the validator\n\nLast updated: **{datetime.now().date()}**\n\n"
+    buffer = ""
     for test in glob.iglob(f"{test_folder}/{wildcard}", recursive=recursive):
         with open(test, "r") as test_file:
             for line in test_file.readlines():
@@ -52,7 +52,7 @@ def main():
     template = read_template()
     index = create_index()
 
-    new_template = template.replace('{{TESTS_INDEX}}', index)
+    new_template = template.replace('{{TESTS_INDEX}}', index).replace('{{LAST_UPDATED}}', datetime.now().date())
     with open("graph_test_set/README.md", "w") as readme:
         readme.write(new_template)
 
