@@ -81,6 +81,14 @@ The server backend will continue running in the background, and you only need to
 
 `ingest-graph-validator shutdown`
 
+### How to run tests
+In order to run the tests in the `graph_test_set` directory, you just have to follow run the following commands in the [main page](https://github.com/HumanCellAtlas/ingest-graph-validator#install_pypi))
+1. In a shell, run:
+```
+ingest-graph-validator init
+ingest-graph-validator hydrate ingest <ingest_uuid>
+ingest-graph-validator action test <path_to_tests>
+```
 
 ### More help
 
