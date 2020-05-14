@@ -27,5 +27,7 @@ if __name__ == '__main__':
                     elif line == "\n":
                         continue
                     else:
+                        if re.search("^## Test: ", line):
+                            line = "##" + line[8:]
                         readme.write(line)
                 readme.write("\n")
