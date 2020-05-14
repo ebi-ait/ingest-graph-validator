@@ -2,7 +2,7 @@
 
 #### Test description
 
-Processes using 10x library preparation protocols have 3 or 4 files linked.
+Processes using 10x library preparation protocols have 2 to 4 files linked.
 
 
 
