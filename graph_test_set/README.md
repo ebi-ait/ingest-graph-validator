@@ -84,6 +84,11 @@ do not exist.
 #### Test description
 When a sequencing protocol is non-10x, non-ss2, test whether metadata is complete.
 
+## ensure_lane_index
+#### Test description
+If more than one R1/R2/I1/I2 in a set, then ensure lane indices are specified.
+If more than one set of R1/R2/I1/I2 SEQUENCE_FILEs belong to a single  process (sequencing experiment) AND those files lack any lane_index, then this snippet returns an error.
+
 ## All files which are not a supplementary file must have a link
 #### Test description
 Files must be attached to something, unless they are a supplementary file. Those will be covered in other test.
