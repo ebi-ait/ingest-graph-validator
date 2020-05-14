@@ -29,7 +29,7 @@ RETURN num_files
 ---
 ```
 Will identify those 10x experiments in which the `num_files` is not in between 2 and 4 (Both included).
- 
+
 5. Commit your changes and push into your branch.
 1. Create a PR indicating:
    - Title: `<Short description of issue>.Fixes #<Issue number>`
@@ -38,3 +38,5 @@ Will identify those 10x experiments in which the `num_files` is not in between 2
 1. If the creator of the PR is an admin of the repository, please ping the creator of the ticket to confirm this is the issue they want to tackle.
 If the person who created the PR is the same one as the person who created the ticket, wait for the administrators to review the PR.
 1. The PR should be reviewed within 3-4 working days, and the last person to review the PR should merge it to master.
+
+{{TESTS_INDEX}}

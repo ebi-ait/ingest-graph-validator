@@ -1,0 +1,13 @@
+fail_fast: true
+
+repos:
+- repo: local
+  hooks:
+
+    - id: generate_test_index
+      name: Generating test index
+      language: system
+      entry: sh .githooks/generate_test_index.sh
+      pass_filenames: false
+      require_serial: true
+      files: '*.adoc'
