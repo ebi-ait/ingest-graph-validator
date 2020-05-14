@@ -10,4 +10,4 @@ repos:
       entry: sh .githooks/generate_test_index.sh
       pass_filenames: false
       require_serial: true
-      files: '*.adoc'
+      files: '.adoc$'
