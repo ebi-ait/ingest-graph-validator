@@ -86,7 +86,17 @@ In order to run the tests in the `graph_test_set` directory, you just have to fo
 1. In a shell, run:
 ```
 ingest-graph-validator init
+```
+If you want to run using an ingest uuid:
+```
 ingest-graph-validator hydrate ingest <ingest_uuid>
+```
+If you want to run using a spreadsheet
+```
+ingest-graph-validator hydrate xls <path/to/spreadsheet>
+```
+then
+```
 ingest-graph-validator action test <path_to_tests>
 ```
 
