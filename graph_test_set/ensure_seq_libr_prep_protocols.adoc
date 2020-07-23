@@ -18,7 +18,7 @@ MATCH (f:sequence_file)
 OPTIONAL MATCH
       (n:process)-[:PROTOCOLS]->(p:sequencing_protocol)
     , (n)-[:PROTOCOLS]->(q:library_preparation_protocol)
-    , (n)-->(f)
+    , (f)-->(n)
 WITH f
     , count(n) AS rowCount
     , 'ERROR:  missing sequencing or library preparation protocol.' AS message
