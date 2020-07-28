@@ -54,23 +54,25 @@ If you install the Graph Validator Suite this way, you should head to the [githu
 
 ### Step by step usage for data wranglers
 
+1. Ensure Docker is installed and running
+
 1. Once [installed from the Python package](#install_pypi), start the backend by opening a terminal and typing:
 
     `ingest-graph-validator init`
 
     **Keep in mind**, first time executing the `init` command will take longer as it has to pull the Neo4j Docker image from dockerhub.
 
-2. Import a spreadsheet:
+1. Import a spreadsheet:
 
     `ingest-graph-validator hydrate xls <spreadsheet filename>`
 
-3. Go to <http://localhost:7474> in a browser to open the frontend.
+1. Go to <http://localhost:7474> in a browser to open the frontend.
 
-4. Connect to the backend (you do not need to change any fields, leave username/password empty):
+1. Connect to the backend (you do not need to change any fields, leave username/password empty):
 
    ![](.readme/connect_backend.png)
 
-5. You can then start writing [cypher queries](https://neo4j.com/graphacademy/online-training/introduction-to-neo4j/) in the input field on top of the web frontend to visualize the graph. For example:
+1. You can then start writing [cypher queries](https://neo4j.com/graphacademy/online-training/introduction-to-neo4j/) in the input field on top of the web frontend to visualize the graph. For example:
 
     ```MATCH p=(n) RETURN p```
 
