@@ -102,7 +102,7 @@ def hydrate(ctx, keep_contents):
 
     logger = logging.getLogger(__name__)
 
-    if ctx.obj.backend is not None and ctx.obj.backend.is_alive():
+    if ctx.obj.backend is None or not ctx.obj.backend.is_alive():
         logger.error("no backend container found")
         exit(1)
 
@@ -118,7 +118,7 @@ def action(ctx):
 
     logger = logging.getLogger(__name__)
 
-    if ctx.obj.backend is not None and ctx.obj.backend.is_alive():
+    if ctx.obj.backend is None or not ctx.obj.backend.is_alive():
         logger.error("no backend container found")
         exit(1)
 
