@@ -36,7 +36,7 @@ The Graph Validator Suite requires docker running in the host machine.
 ### From the git repo
 
 ```
-git clone git@github.com:HumanCellAtlas/ingest-graph-validator.git
+git clone git@github.com:ebi-ait/ingest-graph-validator.git
 cd ingest-graph-validator
 pip install .
 ```
