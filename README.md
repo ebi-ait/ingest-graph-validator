@@ -49,7 +49,7 @@ A Python package has been published in (PyPI)[https://pypi.org/project/ingest-gr
 
 ```pip install ingest-graph-validator```
 
-If you install the Graph Validator Suite this way, you should head to the [github repo](https://github.com/HumanCellAtlas/ingest-graph-validator) to get the [graph tests](https://github.com/HumanCellAtlas/ingest-graph-validator/tree/master/graph_test_set) and the [graph reports](https://github.com/HumanCellAtlas/ingest-graph-validator/tree/master/graph_report_set).
+If you install the Graph Validator Suite this way, you should head to the [github repo](https://github.com/ebi-ait/ingest-graph-validator) to get the [graph tests](https://github.com/ebi-ait/ingest-graph-validator/tree/master/graph_test_set) and the [graph reports](https://github.com/ebi-ait/ingest-graph-validator/tree/master/graph_report_set).
 
 
 ## Usage
@@ -86,7 +86,8 @@ The server backend will continue running in the background, and you only need to
 `ingest-graph-validator shutdown`
 
 ### How to run tests
-In order to run the tests in the `graph_test_set` directory, you just have to follow run the following commands in the [main page](https://github.com/HumanCellAtlas/ingest-graph-validator#install_pypi))
+In order to run the tests in the `graph_test_set` directory, you need to run the following commands:
+
 1. In a shell, run:
 ```
 ingest-graph-validator init
