@@ -58,3 +58,4 @@ wcwidth==0.1.7
 websocket-client==0.56.0
 XlsxWriter==1.2.6
 kombu==4.6.8
+wheel==0.33.6
