@@ -19,7 +19,7 @@ et-xmlfile==1.0.1
 google-auth==1.7.1
 google-auth-oauthlib==0.4.1
 hca==7.0.0
-hca-ingest==0.6.8
+hca-ingest==0.6.12
 idna==2.8
 jdcal==1.4.1
 Jinja2==2.10.3
@@ -44,7 +44,7 @@ PyJWT==1.7.1
 pyOpenSSL==19.1.0
 python-dateutil==2.8.0
 pytz==2019.3
-PyYAML==5.1.2
+PyYAML==5.3.1
 requests==2.22.0
 requests-oauthlib==1.3.0
 rsa==4.0
