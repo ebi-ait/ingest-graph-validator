@@ -11,7 +11,7 @@ Defaults = {
     'NEO4J_DB_URL': "localhost",
     'NEO4J_DB_USERNAME': "neo4j",
     'NEO4J_DB_PASSWORD': "password",
-    'INGEST_API': "https://api.ingest.data.humancellatlas.org",
+    'INGEST_API': "https://api.ingest.archive.data.humancellatlas.org",
     'AMQP_CONNECTION': "amqp://guest:guest@localhost:5672",
     'AMQP_EXCHANGE_NAME': "ingest.validation.exchange",
     'AMQP_QUEUE_NAME': "ingest.graph.validation.queue",
