@@ -51,7 +51,7 @@ setup(
     setup_requires=setup_requirements,
     test_suite="tests",
     tests_require=test_requirements,
-    url="https://github.com/HumanCellAtlas/ingest-graph-validator",
+    url="https://github.com/ebi-ait/ingest-graph-validator",
     version="0.6.1",
     zip_safe=False,
 )
