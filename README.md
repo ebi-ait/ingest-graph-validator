@@ -1,3 +1,5 @@
+[![PyPI](https://img.shields.io/pypi/v/ingest-graph-validator.svg)](https://pypi.org/project/ingest-graph-validator/)
+
 # HCA Ingest Service Graph Validation Suite
 
 ## What is this useful for in the scope of the HCA:
@@ -198,6 +200,19 @@ RETURN path
 * HDCA-Sweden-10x: 071fc37f-1a01-4cf7-a6f5-2662c42c12b6
 * HumanTissueTcellActivation: 8b5feb5e-9039-4c54-9e79-053e490c141a
 * HumanMousePancreas: 7b4cd093-bfa5-477e-9c95-69bafc1cb6bf
+
+## Releasing a new version to PyPI
+
+You should have a maintainer role access for [this project in PyPI](https://pypi.org/project/ingest-graph-validator/).
+
+1. Bump the version and create a tag
+    ```
+    make patch|minor|major
+    ```
+1. Upload to PyPI
+    ```
+    make release
+    ```
 
 ## Credits
 
