@@ -56,7 +56,42 @@ If you install the Graph Validator Suite this way, you should head to the [githu
 
 ## Usage
 
-### Step by step usage for data wranglers
+### Wrangler EC2
+The graph validator is installed on the Wrangler EC2. The Neo4j Browser UI of this instance can be accessed at http://tool.archive.data.humancellatlas.org:7474/browser/.
+
+If you have HCAWrangler user credientials configured in a profile called `hca-util`, the username/password stored in AWS Secrets can be retrieved using the command:
+
+```
+$ aws secretsmanager get-secret-value --secret-id ingest/tool/wrangler/ec2/neo4j --region us-east-1 --query SecretString --output text --profile hca-util
+```
+
+
+To import/load new project into the graph db: 
+- log into the EC2 via SSH
+- navigate to the installation dir and activate the environment
+    ```
+    $ cd /data/tools/ingest-graph-validator/
+    $ . venv/bin/activate
+    ```
+- you don't need to run `ingest-graph-validator init` as the server is already running in the background
+- import a spreadsheet
+    ```
+    $ ingest-graph-validator hydrate xls <path/to/xls>
+    ```
+- import using an ingest submission uuid
+    ```
+    $ ingest-graph-validator hydrate ingest <sub_uuid>
+    ```
+- run tests
+    ```
+    $ ingest-graph-validator action test <path/to/tests_dir>
+    ```
+- don't forget to exit the virtual environment when done
+    ```
+    $ deactivate
+    ```
+
+### Step by step usage for running locally
 
 1. Ensure Docker is installed and running
 
@@ -202,38 +237,7 @@ RETURN path
 * HumanMousePancreas: 7b4cd093-bfa5-477e-9c95-69bafc1cb6bf
 
 
-## Wrangler EC2
-The graph validator is installed on the Wrangler EC2. The Neo4j Browser UI of this instance can be accessed at http://tool.archive.data.humancellatlas.org:7474/browser/.
 
-Using the HCAWrangler user credientials, the username/password stored in AWS Secrets can be retrieved using the command:
-```
-$ aws secretsmanager get-secret-value --secret-id ingest/tool/wrangler/ec2/neo4j --region us-east-1 --query SecretString --output text
-```
-
-To import/load new project into the graph db: 
-- log into the EC2 via SSH
-- navigate to the installation dir and activate the environment
-    ```
-    $ cd /data/tools/ingest-graph-validator/
-    $ . venv/bin/activate
-    ```
-- you don't need to run `ingest-graph-validator init` as the server is already running in the background
-- import a spreadsheet
-    ```
-    $ ingest-graph-validator hydrate xls <path/to/xls>
-    ```
-- import using an ingest submission uuid
-    ```
-    $ ingest-graph-validator hydrate ingest <sub_uuid>
-    ```
-- run tests
-    ```
-    $ ingest-graph-validator action test <path/to/tests_dir>
-    ```
-- don't forget to exit the virtual environment when done
-    ```
-    $ deactivate
-    ```
 
 
 ## Releasing a new version to PyPI
