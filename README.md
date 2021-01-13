@@ -74,6 +74,13 @@ To import/load new project into the graph db:
     $ . venv/bin/activate
     ```
 - you don't need to run `ingest-graph-validator init` as the server is already running in the background
+
+- you will need to run the following command before importing a spreadsheet or ingest submission uuid, where password is determined using the aws secretsmanager command shown above:
+
+    ```
+    $ export INGEST_GRAPH_VALIDATOR_NEO4J_DB_PASSWORD=[password]
+    ```
+
 - import a spreadsheet
     ```
     $ ingest-graph-validator hydrate xls <path/to/xls>
