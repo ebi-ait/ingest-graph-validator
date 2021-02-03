@@ -120,10 +120,9 @@ class IngestHydrator(Hydrator):
                             if relationship_name == 'DERIVED_BY_PROCESSES':
                                 edges.append(Relationship(end_node, 'DUMMY_EXPERIMENTAL_DESIGN', start_node))
 
+                            self._logger.debug(f"({start_node['id']})-[:{relationship_name}]->({end_node['id']})")
                         except KeyError:
-                            self._logger.debug(f"Missing end node at a [{start_node['label']}] entity.")
-
-                        self._logger.debug(f"({start_node['id']})-[:{relationship_name}]->({end_node['id']})")
+                            self._logger.debug(f"Missing end node at a [{start_node['id']}] entity.")
 
         self._logger.info(f"imported {len(edges)} edges")
 
