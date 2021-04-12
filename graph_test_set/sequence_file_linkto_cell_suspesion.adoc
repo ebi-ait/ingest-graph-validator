@@ -13,7 +13,7 @@ This next query provides the filenames, biomaterial IDs and nucleic acid sources
 ----
 MATCH path = (b:biomaterial)-[:INPUT_TO_PROCESSES]->(p:process)<-[:DERIVED_BY_PROCESSES]-(f:sequence_file), seq_path = (p)-[:PROTOCOLS]-(l:library_preparation_protocol)
 WHERE NOT b:cell_suspension
-AND l.nucleic_acid_source="single cell"
+AND l.nucleic_acid_source STARTS WITH "single"
 RETURN f.`file_core.file_name`, b.`biomaterial_core.biomaterial_id`, l.nucleic_acid_source
 ----
 
