@@ -1,24 +1,20 @@
 
-## Test: Sequence files link to cell suspension
+## Test: Sequence files link to cell suspension in single cell experiments
 
 #### Test description
 
-The biomaterial linked to the process linked to a sequence file must be a cell suspension.
+The biomaterial linked to the process linked to a sequence file must be a cell suspension in single cell experiments.
 
-This next query should provide all the subgraphs in the form (file)-(process)-(biomaterial).
+This next query provides the filenames, biomaterial IDs and nucleic acid sources linked together that break this assumption
 
-----
-MATCH path = (b:biomaterial)-[:INPUT_TO_PROCESSES]->(p:process)<-[:DERIVED_BY_PROCESSES]-(f:file)
-WHERE b:cell_suspension
-RETURN path
-----
 
 #### The test
 [source,cypher]
 ----
-MATCH (b:biomaterial)-[:INPUT_TO_PROCESSES]->(p:process)<-[:DERIVED_BY_PROCESSES]-(f:file)
+MATCH path = (b:biomaterial)-[:INPUT_TO_PROCESSES]->(p:process)<-[:DERIVED_BY_PROCESSES]-(f:sequence_file), seq_path = (p)-[:PROTOCOLS]-(l:library_preparation_protocol)
 WHERE NOT b:cell_suspension
-RETURN f.`file_core.file_name`, b.`biomaterial_core.biomaterial_id`
+AND l.nucleic_acid_source STARTS WITH "single"
+RETURN f.`file_core.file_name`, b.`biomaterial_core.biomaterial_id`, l.nucleic_acid_source
 ----
 
 
