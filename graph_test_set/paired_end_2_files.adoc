@@ -1,19 +1,19 @@
-## Test: Paired end experiment has less than 2 files
+## Test: Paired end experiment has 2 or more files
 
 #### Test description
 
-When a sequencing protocol is paired-end, test whether it has 2 or more files linked.
+When a sequencing protocol is paired-end, test whether it has 2 or more sequencing files linked.
 
 
 
 #### The test
 [source,cypher]
 ----
-MATCH (s:sequencing_protocol)<-[:PROTOCOLS]-(p:process)<-[d]-(f:file)
-WITH s, p, COUNT(d) as num_files
+MATCH (s:sequencing_protocol)<-[:PROTOCOLS]-(p:process)<-[d]-(f:sequence_file)
+WITH s, p, f, COUNT(d) as num_files
 WHERE s.`paired_end` = false
 AND NOT num_files >= 2
-RETURN num_files
+RETURN num_files, f.`file_core.file_name`
 ----
 
 
