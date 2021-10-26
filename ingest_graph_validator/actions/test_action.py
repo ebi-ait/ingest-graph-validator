@@ -22,14 +22,15 @@ class TestAction:
         self._exit_on_failure = exit_on_failure
         self._submission_id = submission_id
 
-        # Note all logic surrounding adding to ingest can be moved to ingest_validator_action.py in dcp-506
-        # ingest_validator_action.py spins up a queue to listen to
-        s2s_token_client = S2STokenClient(
-            credential=ServiceCredential.from_file(Config['GOOGLE_APPLICATION_CREDENTIALS']),
-            audience='https://login.elixir-czech.org/oidc/'
-        )
-        token_manager = TokenManager(s2s_token_client)
-        self._ingest_api = IngestApi(Config['INGEST_API'], token_manager=token_manager)
+        if self._submission_id:
+            # Note all logic surrounding adding to ingest can be moved to ingest_validator_action.py in dcp-506
+            # ingest_validator_action.py spins up a queue to listen to
+            s2s_token_client = S2STokenClient(
+                credential=ServiceCredential.from_file(Config['GOOGLE_APPLICATION_CREDENTIALS']),
+                audience='https://login.elixir-czech.org/oidc/'
+            )
+            token_manager = TokenManager(s2s_token_client)
+            self._ingest_api = IngestApi(Config['INGEST_API'], token_manager=token_manager)
 
 
         self._test_queries = {}
