@@ -53,7 +53,6 @@ class TestAction:
             submission_url = submission["_links"]["self"]["href"]
             self._ingest_api.put(f'{submission_url}/graphValidatingEvent', data=None)
 
-        bad_tests = 0
         is_valid = True
         total_result = {}
 
@@ -72,15 +71,16 @@ class TestAction:
                     exit(1)
 
         
-        self._logger.info(f"all tests finished {'([{}] failed)'.format(bad_tests) if bad_tests > 0 else ''}")
-        
+        self._logger.info("All tests finished")
+        error_message = f"Failed test names: f{', '.join(total_result.keys())}"
+
         if self._submission_id:
             if is_valid:
                 self._ingest_api.put(f'{submission_url}/graphValidEvent', data=None)
             else:
-                self._ingest_api.put(f'{submission_url}/graphInvalidEvent', data=None)
+                self._ingest_api.put(f'{submission_url}/graphInvalidEvent', data={'message': error_message})
 
         return {
-            "messages": total_result,
+            "messages": error_message,
             "valid": is_valid
         }
