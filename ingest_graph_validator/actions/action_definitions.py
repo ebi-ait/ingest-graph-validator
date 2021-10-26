@@ -23,11 +23,11 @@ def get_actions():
 # The queue in ingest_validator_action receives the submission ID
 # All logic for updating graphValidationState in ingest should be moved to that action so submission_id 
 # is not needed here
-@click.argument("submission_id", type=click.STRING)
-def test(ctx, test_path, submission_id, fail):
+@click.argument("submission_id", type=click.STRING, required=False)
+def test(ctx, test_path, fail, submission_id):
     """Runs graph validation tests in the specified folder."""
 
-    TestAction(ctx.obj.graph, test_path, submission_id, fail).run()
+    TestAction(ctx.obj.graph, test_path, fail, submission_id).run()
 
 
 @click.command()

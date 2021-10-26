@@ -16,7 +16,7 @@ from ..config import Config
 
 class TestAction:
 
-    def __init__(self, graph, test_path, submission_id,     exit_on_failure):
+    def __init__(self, graph, test_path, exit_on_failure, submission_id = None):
         self._graph = graph
         self._test_path = test_path
         self._exit_on_failure = exit_on_failure
@@ -45,8 +45,9 @@ class TestAction:
 
         self._logger.info("running tests")
 
-        submission_url = self._ingest_api.get_submission_by_uuid(self._submission_id)["_links"]["self"]["href"]
-        self._ingest_api.put(f'{submission_url}/graphValidatingEvent', data=None)
+        if self._submission_id:
+            submission_url = self._ingest_api.get_submission_by_uuid(self._submission_id)["_links"]["self"]["href"]
+            self._ingest_api.put(f'{submission_url}/graphValidatingEvent', data=None)
 
         bad_tests = 0
         is_valid = True
@@ -69,10 +70,11 @@ class TestAction:
         
         self._logger.info(f"all tests finished {'([{}] failed)'.format(bad_tests) if bad_tests > 0 else ''}")
         
-        if is_valid:
-            self._ingest_api.put(f'{submission_url}/graphValidEvent', data=None)
-        else:
-            self._ingest_api.put(f'{submission_url}/graphInvalidEvent', data=None)
+        if self._submission_id:
+            if is_valid:
+                self._ingest_api.put(f'{submission_url}/graphValidEvent', data=None)
+            else:
+                self._ingest_api.put(f'{submission_url}/graphInvalidEvent', data=None)
 
         return {
             "messages": total_result,
