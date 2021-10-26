@@ -6,9 +6,13 @@ import logging
 
 from kombu import Connection, Exchange, Queue
 from kombu.mixins import ConsumerMixin
+from ingest.utils.s2s_token_client import S2STokenClient, ServiceCredential
+from ingest.utils.token_manager import TokenManager
+from ingest.api.ingestapi import IngestApi
 
 from ..hydrators.ingest_hydrator import IngestHydrator
 from .test_action import TestAction
+
 
 from .common import load_test_queries
 
@@ -36,6 +40,13 @@ class ValidationListener(ConsumerMixin):
         self._graph = graph
         self._test_path = test_path
 
+        s2s_token_client = S2STokenClient(
+                credential=ServiceCredential.from_file(Config['GOOGLE_APPLICATION_CREDENTIALS']),
+                audience='https://login.elixir-czech.org/oidc/'
+            )
+        token_manager = TokenManager(s2s_token_client)
+        self._ingest_api = IngestApi(Config['INGEST_API'], token_manager=token_manager)
+
         self._logger = logging.getLogger(__name__)
 
     def get_consumers(self, Consumer, channel):
@@ -45,13 +56,34 @@ class ValidationListener(ConsumerMixin):
         subid = message.payload['submissionEnvelopeUuid']
         self._logger.info(f"received validation request for {subid}")
 
-        validation_result = ValidationHandler(subid, self._graph, self._test_path).run()
+        submission = self._ingest_api.get_submission_by_uuid(subid)
+        submission_url = submission["_links"]["self"]["href"]
 
-        if validation_result is not None:
-            self._logger.info(f"validation finished for {subid}")
-            self._logger.debug(f"result: {validation_result}")
+        
+        if submission["graphValidationState"] != "Pending":
+            raise RuntimeError(f"Cannot perform validation on submission {subid} as grapValidationState is not 'Pending'")
+        
+        try:
+            self._ingest_api.put(f'{submission_url}/graphValidatingEvent', data=None)
 
-            message.ack()
+            validation_result = ValidationHandler(subid, self._graph, self._test_path).run()
+
+            if validation_result is not None:
+                self._logger.info(f"validation finished for {subid}")
+                self._logger.debug(f"result: {validation_result['messages']}")
+
+                if validation_result["valid"]:
+                    self._ingest_api.put(f'{submission_url}/graphValidEvent', data=None)
+                else:
+                    self._ingest_api.put(f'{submission_url}/graphInvalidEvent', data=validation_result["message"])
+
+                message.ack()
+
+        except Exception as e:
+            self._logger.error(f"Failed with error {e}.")
+            self._logger.info("Reverting submission graphValidationState to Pending")
+            self._ingest_api.put(f'{submission_url}/graphValidEvent', data=None)
+            self._ingest_api.put(f'{submission_url}/graphPendingEvent', data=None)
 
 
 class IngestValidatorAction:
