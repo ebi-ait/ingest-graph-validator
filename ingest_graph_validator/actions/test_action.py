@@ -46,7 +46,10 @@ class TestAction:
         self._logger.info("running tests")
 
         if self._submission_id:
-            submission_url = self._ingest_api.get_submission_by_uuid(self._submission_id)["_links"]["self"]["href"]
+            submission = self._ingest_api.get_submission_by_uuid(self._submission_id)
+            if submission["graphValidationState"] != "Pending":
+                raise RuntimeError(f"Cannot perform validation on submission {self._submission_id} as grapValidationState is not 'Pending'")
+            submission_url = submission["_links"]["self"]["href"]
             self._ingest_api.put(f'{submission_url}/graphValidatingEvent', data=None)
 
         bad_tests = 0
