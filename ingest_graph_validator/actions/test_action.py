@@ -53,34 +53,43 @@ class TestAction:
             submission_url = submission["_links"]["self"]["href"]
             self._ingest_api.put(f'{submission_url}/graphValidatingEvent', data=None)
 
-        is_valid = True
-        total_result = {}
+        try:
+            is_valid = True
+            total_result = {}
 
-        for test_name, test_query in self._test_queries.items():
-            self._logger.debug(f"running test [{test_name}]")
-            result = self._graph.run(test_query).data()
+            for test_name, test_query in self._test_queries.items():
+                self._logger.debug(f"running test [{test_name}]")
+                result = self._graph.run(test_query).data()
 
-            if len(result) != 0:
-                is_valid = False
-                self._logger.error(f"test [{test_name}] failed: non-empty result.")
-                self._logger.error(f"result: {result}")
-                total_result[test_name] = result
+                if len(result) != 0:
+                    is_valid = False
+                    self._logger.error(f"test [{test_name}] failed: non-empty result.")
+                    self._logger.error(f"result: {result}")
+                    total_result[test_name] = result
 
-                if self._exit_on_failure is True:
-                    self._logger.info("execution terminated")
-                    exit(1)
+                    if self._exit_on_failure is True:
+                        self._logger.info("execution terminated")
+                        exit(1)
 
-        
-        self._logger.info("All tests finished")
-        error_message = f"Failed test names: f{', '.join(total_result.keys())}"
+            
+            self._logger.info("All tests finished")
+            error_message = f"Failed test names: f{', '.join(total_result.keys())}"
 
-        if self._submission_id:
-            if is_valid:
-                self._ingest_api.put(f'{submission_url}/graphValidEvent', data=None)
-            else:
-                self._ingest_api.put(f'{submission_url}/graphInvalidEvent', data={'message': error_message})
+            if self._submission_id:
+                if is_valid:
+                    self._ingest_api.put(f'{submission_url}/graphValidEvent', data=None)
+                else:
+                    self._ingest_api.put(f'{submission_url}/graphInvalidEvent', data={'message': error_message})
 
-        return {
-            "messages": error_message,
-            "valid": is_valid
-        }
+            return {
+                "messages": error_message,
+                "valid": is_valid
+            }
+        except Exception as e:
+            self._logger.error(f"Failed with error {e}.")
+
+            if self._submission_id:
+                self._logger.info("Reverting submission graphValidationState to Pending")
+                self._ingest_api.put(f'{submission_url}/graphInvalidEvent', data=None)
+                self._ingest_api.put(f'{submission_url}/graphPendingEvent', data=None)
+
