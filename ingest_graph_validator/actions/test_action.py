@@ -79,7 +79,7 @@ class TestAction:
                 if is_valid:
                     self._ingest_api.put(f'{submission_url}/graphValidEvent', data=None)
                 else:
-                    self._ingest_api.put(f'{submission_url}/graphInvalidEvent', data={'message': error_message})
+                    self._ingest_api.put(f'{submission_url}/graphInvalidEvent', data=error_message)
 
             return {
                 "messages": error_message,
@@ -90,6 +90,6 @@ class TestAction:
 
             if self._submission_id:
                 self._logger.info("Reverting submission graphValidationState to Pending")
-                self._ingest_api.put(f'{submission_url}/graphInvalidEvent', data=None)
+                self._ingest_api.put(f'{submission_url}/graphValidEvent', data=None)
                 self._ingest_api.put(f'{submission_url}/graphPendingEvent', data=None)
 
