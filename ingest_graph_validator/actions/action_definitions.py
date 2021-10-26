@@ -19,10 +19,15 @@ def get_actions():
               default=False, show_default=True)
 @click.pass_context
 @click.argument("test_path", type=click.Path(exists=True))
-def test(ctx, test_path, fail):
+# Note that the submission_id requirement can be removed in dcp-506
+# The queue in ingest_validator_action receives the submission ID
+# All logic for updating graphValidationState in ingest should be moved to that action so submission_id 
+# is not needed here
+@click.argument("submission_id", type=click.STRING)
+def test(ctx, test_path, submission_id, fail):
     """Runs graph validation tests in the specified folder."""
 
-    TestAction(ctx.obj.graph, test_path, fail).run()
+    TestAction(ctx.obj.graph, test_path, submission_id, fail).run()
 
 
 @click.command()
