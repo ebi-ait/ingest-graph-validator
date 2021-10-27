@@ -1,8 +1,4 @@
-# ingest-graph-validator dockerfile
-#
-# Author: Javier Ferrer
-
-FROM python:3.7-alpine
+FROM quay.io/ebi-ait/ingest-base-images:python_3.7-alpine
 LABEL maintainer="Javier Ferrer <jferrer@ebi.ac.uk>"
 
 # Install build essentials (needed to build some python requirements)
