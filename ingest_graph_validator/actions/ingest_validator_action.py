@@ -42,7 +42,7 @@ class ValidationListener(ConsumerMixin):
 
         s2s_token_client = S2STokenClient(
                 credential=ServiceCredential.from_file(Config['GOOGLE_APPLICATION_CREDENTIALS']),
-                audience='https://login.elixir-czech.org/oidc/'
+                audience=Config['INGEST_JWT_AUDIENCE']
             )
         token_manager = TokenManager(s2s_token_client)
         self._ingest_api = IngestApi(Config['INGEST_API'], token_manager=token_manager)
