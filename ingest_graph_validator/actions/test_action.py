@@ -92,6 +92,5 @@ class TestAction:
 
             if self._submission_uuid:
                 self._logger.info("Reverting submission graphValidationState to Pending")
-                self._ingest_api.put(f'{submission_url}/graphValidEvent', data=None)
                 self._ingest_api.put(f'{submission_url}/graphPendingEvent', data=None)
 
