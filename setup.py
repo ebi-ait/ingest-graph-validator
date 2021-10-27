@@ -9,7 +9,8 @@ from setuptools import setup, find_packages
 
 
 # Required packages to install.
-requirements = [line.rstrip() for line in open(path.join(path.dirname(__file__), 'requirements.txt'))]
+base_dir = path.dirname(__file__)
+install_requires = [line.rstrip() for line in open(path.join(base_dir, 'requirements.txt'))]
 
 setup_requirements = ["pytest-runner", ]
 
@@ -42,8 +43,7 @@ setup(
     },
     install_requires=[
         'hca-ingest @ git+https://github.com/ebi-ait/ingest-client.git@782dd754#egg=hca_ingest',
-        requirements,
-
+        install_requires
     ],
     license="MIT license",
     long_description=long_description,
