@@ -20,7 +20,7 @@ def get_actions():
 @click.pass_context
 @click.argument("test_path", type=click.Path(exists=True))
 # Note that the submission_id requirement can be removed in dcp-506
-# The queue in ingest_validator_action receives the submission ID
+# The queue in ingest_validator_action receives the submission UUID
 # All logic for updating graphValidationState in ingest should be moved to that action so submission_id 
 # is not needed here
 @click.argument("submission_id", type=click.STRING, required=False)
