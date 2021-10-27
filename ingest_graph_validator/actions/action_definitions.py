@@ -19,7 +19,7 @@ def get_actions():
               default=False, show_default=True)
 @click.pass_context
 @click.argument("test_path", type=click.Path(exists=True))
-def test(ctx, test_path, fail, submission_id):
+def test(ctx, test_path, fail):
     """Runs graph validation tests in the specified folder."""
 
     TestAction(ctx.obj.graph, test_path, fail).run()
