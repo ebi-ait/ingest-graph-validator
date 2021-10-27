@@ -12,6 +12,8 @@ Defaults = {
     'NEO4J_DB_USERNAME': "neo4j",
     'NEO4J_DB_PASSWORD': "password",
     'INGEST_API': "https://api.ingest.archive.data.humancellatlas.org",
+    'GOOGLE_APPLICATION_CREDENTIALS': os.path.join(os.path.expanduser("~"), ".secrets", "gcp_credentials"),
+    'INGEST_JWT_AUDIENCE': "https://data.humancellatlas.org/",
     'AMQP_CONNECTION': "amqp://guest:guest@localhost:5672",
     'AMQP_EXCHANGE_NAME': "ingest.validation.exchange",
     'AMQP_QUEUE_NAME': "ingest.graph.validation.queue",
@@ -22,6 +24,8 @@ Defaults = {
 Config = {
     'LOG_LEVEL': os.environ.get("INGEST_GRAPH_VALIDATOR_LOG_LEVEL", "ERROR"),
     'INGEST_API': os.environ.get("INGEST_GRAPH_VALIDATOR_INGEST_API_URL", Defaults['INGEST_API']),
+    'GOOGLE_APPLICATION_CREDENTIALS': os.environ.get("INGEST_GRAPH_VALIDATOR_GOOGLE_APPLICATION_CREDENTIALS", Defaults['GOOGLE_APPLICATION_CREDENTIALS']),
+    'INGEST_JWT_AUDIENCE': os.environ.get("INGEST_GRAPH_VALIDATOR_INGEST_JWT_AUDIENCE", Defaults["INGEST_JWT_AUDIENCE"]),
     'NEO4J_IMAGE': "neo4j:3.5.14-enterprise",
     'NEO4J_BOLT_PORT': os.environ.get("INGEST_GRAPH_VALIDATOR_NEO4J_BOLT_PORT", Defaults['NEO4J_BOLT_PORT']),
     'NEO4J_FRONTEND_PORT': os.environ.get("INGEST_GRAPH_VALIDATOR_NEO4J_FRONTEND_PORT", Defaults['NEO4J_FRONTEND_PORT']),
@@ -33,7 +37,6 @@ Config = {
     'AMQP_EXCHANGE_NAME': os.environ.get("AMQP_EXCHANGE_NAME", Defaults['AMQP_EXCHANGE_NAME']),
     'AMQP_QUEUE_NAME': os.environ.get("AMQP_QUEUE_NAME", Defaults['AMQP_QUEUE_NAME']),
     'AMQP_ROUTING_KEY': os.environ.get("AMQP_ROUTING_KEY", Defaults['AMQP_ROUTING_KEY']),
-
 }
 
 
