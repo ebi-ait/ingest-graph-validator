@@ -15,9 +15,9 @@ Defaults = {
     'GOOGLE_APPLICATION_CREDENTIALS': os.path.join(os.path.expanduser("~"), ".secrets", "gcp_credentials"),
     'INGEST_JWT_AUDIENCE': "https://data.humancellatlas.org/",
     'AMQP_CONNECTION': "amqp://guest:guest@localhost:5672",
-    'AMQP_EXCHANGE_NAME': "ingest.validation.exchange",
-    'AMQP_QUEUE_NAME': "ingest.graph.validation.queue",
-    'AMQP_ROUTING_KEY': "ingest.graph.validation.queue",
+    'AMQP_EXCHANGE_NAME': "ingest.validation.graph.exchange",
+    'AMQP_QUEUE_NAME': "ingest.validation.graph.queue",
+    'AMQP_ROUTING_KEY': "ingest.validation.graph.queue",
 }
 
 

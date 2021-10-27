@@ -2,7 +2,7 @@
 
 """Runs graph validation tests in the specified folder."""
 
-import logging
+import logging, json
 
 from kombu import Connection, Exchange, Queue
 from kombu.mixins import ConsumerMixin
@@ -40,24 +40,37 @@ class ValidationListener(ConsumerMixin):
         self._graph = graph
         self._test_path = test_path
 
-        s2s_token_client = S2STokenClient(
+        if Config["INGEST_API"] == "http://localhost:8080":
+            self._ingest_api = IngestApi(Config['INGEST_API'])
+        else:
+            s2s_token_client = S2STokenClient(
                 credential=ServiceCredential.from_file(Config['GOOGLE_APPLICATION_CREDENTIALS']),
                 audience=Config['INGEST_JWT_AUDIENCE']
             )
-        token_manager = TokenManager(s2s_token_client)
-        self._ingest_api = IngestApi(Config['INGEST_API'], token_manager=token_manager)
+            token_manager = TokenManager(s2s_token_client)
+            self._ingest_api = IngestApi(Config['INGEST_API'], token_manager=token_manager)
+
 
         self._logger = logging.getLogger(__name__)
 
     def get_consumers(self, Consumer, channel):
-        return [Consumer(queues=self.validation_queue, accept=["json"], on_message=self.handle_message, prefetch_count=10)]
+        return [Consumer(queues=self.validation_queue, accept=["application/json;charset=UTF-8", "json"], on_message=self.handle_message, prefetch_count=10)]
 
     def handle_message(self, message):
-        subid = message.payload['submissionEnvelopeUuid']
+        print(message.payload)
+        payload = json.loads(message.payload)
+        subid = payload['documentUuid']
+        
+        if(payload["documentType"] != "submissionenvelope"):
+            self._logger.error(f"Cannot process document since is not a submission envelope. UUID: f{subid}")
+            message.ack()
+            return
+
         self._logger.info(f"received validation request for {subid}")
 
         submission = self._ingest_api.get_submission_by_uuid(subid)
         submission_url = submission["_links"]["self"]["href"]
+        print(submission)
 
         
         if submission["graphValidationState"] != "Pending":
@@ -70,7 +83,7 @@ class ValidationListener(ConsumerMixin):
 
             if validation_result is not None:
                 self._logger.info(f"validation finished for {subid}")
-                self._logger.debug(f"result: {validation_result['messages']}")
+                self._logger.debug(f"result: {validation_result['message']}")
 
                 if validation_result["valid"]:
                     self._ingest_api.put(f'{submission_url}/graphValidEvent', data=None)
@@ -84,6 +97,7 @@ class ValidationListener(ConsumerMixin):
             self._logger.info("Reverting submission graphValidationState to Pending")
             self._ingest_api.put(f'{submission_url}/graphValidEvent', data=None)
             self._ingest_api.put(f'{submission_url}/graphPendingEvent', data=None)
+            message.ack()
 
 
 class IngestValidatorAction:
