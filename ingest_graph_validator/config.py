@@ -11,7 +11,7 @@ Defaults = {
     'NEO4J_DB_URL': "localhost",
     'NEO4J_DB_USERNAME': "neo4j",
     'NEO4J_DB_PASSWORD': "password",
-    'INGEST_API': "http://localhost:8080",
+    'INGEST_API': "https://api.ingest.archive.data.humancellatlas.org",
     'GOOGLE_APPLICATION_CREDENTIALS': os.path.join(os.path.expanduser("~"), ".secrets", "gcp_credentials"),
     'INGEST_JWT_AUDIENCE': "https://data.humancellatlas.org/",
     'AMQP_CONNECTION': "amqp://guest:guest@localhost:5672",
