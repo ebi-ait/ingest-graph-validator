@@ -16,18 +16,18 @@ from ..config import Config
 
 class TestAction:
 
-    def __init__(self, graph, test_path, exit_on_failure, submission_id = None):
+    def __init__(self, graph, test_path, exit_on_failure, submission_uuid = None):
         self._graph = graph
         self._test_path = test_path
         self._exit_on_failure = exit_on_failure
-        self._submission_id = submission_id
+        self._submission_uuid = submission_uuid
 
-        if self._submission_id:
+        if self._submission_uuid:
             # Note all logic surrounding adding to ingest can be moved to ingest_validator_action.py in dcp-506
             # ingest_validator_action.py spins up a queue to listen to
             s2s_token_client = S2STokenClient(
                 credential=ServiceCredential.from_file(Config['GOOGLE_APPLICATION_CREDENTIALS']),
-                audience='https://login.elixir-czech.org/oidc/'
+                audience=Config['INGEST_JWT_AUDIENCE']
             )
             token_manager = TokenManager(s2s_token_client)
             self._ingest_api = IngestApi(Config['INGEST_API'], token_manager=token_manager)
@@ -46,10 +46,12 @@ class TestAction:
 
         self._logger.info("running tests")
 
-        if self._submission_id:
-            submission = self._ingest_api.get_submission_by_uuid(self._submission_id)
+        if self._submission_uuid:
+            submission = self._ingest_api.get_submission_by_uuid(self._submission_uuid)
+           
             if submission["graphValidationState"] != "Pending":
-                raise RuntimeError(f"Cannot perform validation on submission {self._submission_id} as grapValidationState is not 'Pending'")
+                raise RuntimeError(f"Cannot perform validation on submission {self._submission_uuid} as grapValidationState is not 'Pending'")
+           
             submission_url = submission["_links"]["self"]["href"]
             self._ingest_api.put(f'{submission_url}/graphValidatingEvent', data=None)
 
@@ -75,7 +77,7 @@ class TestAction:
             self._logger.info("All tests finished")
             error_message = f"Failed test names: f{', '.join(total_result.keys())}"
 
-            if self._submission_id:
+            if self._submission_uuid:
                 if is_valid:
                     self._ingest_api.put(f'{submission_url}/graphValidEvent', data=None)
                 else:
@@ -88,7 +90,7 @@ class TestAction:
         except Exception as e:
             self._logger.error(f"Failed with error {e}.")
 
-            if self._submission_id:
+            if self._submission_uuid:
                 self._logger.info("Reverting submission graphValidationState to Pending")
                 self._ingest_api.put(f'{submission_url}/graphValidEvent', data=None)
                 self._ingest_api.put(f'{submission_url}/graphPendingEvent', data=None)
