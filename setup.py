@@ -41,7 +41,7 @@ setup(
         ],
     },
     install_requires=[
-        'ingest-client git+https://github.com/ebi-ait/ingest-client.git@782dd754#egg=hca_ingest',
+        'hca-ingest @ git+https://github.com/ebi-ait/ingest-client.git@782dd754#egg=hca_ingest',
         requirements,
 
     ],

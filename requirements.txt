@@ -11,7 +11,7 @@ colorama==0.4.1
 commonmark==0.9.1
 coverage==4.5.4
 crc32c==1.7
-cryptography==2.8
+cryptography
 dcplib==2.1.2
 docker==4.1.0
 docutils==0.15.2
@@ -19,7 +19,6 @@ et-xmlfile==1.0.1
 google-auth==1.7.1
 google-auth-oauthlib==0.4.1
 hca==7.0.0
-hca-ingest==0.6.12
 idna==2.8
 jdcal==1.4.1
 Jinja2==2.10.3
