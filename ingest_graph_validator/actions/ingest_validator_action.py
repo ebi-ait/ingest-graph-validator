@@ -94,7 +94,6 @@ class ValidationListener(ConsumerMixin):
         except Exception as e:
             self._logger.error(f"Failed with error {e}.")
             self._logger.info("Reverting submission graphValidationState to Pending")
-            self._ingest_api.put(f'{submission_url}/graphValidEvent', data=None)
             self._ingest_api.put(f'{submission_url}/graphPendingEvent', data=None)
             message.ack()
 
