@@ -72,11 +72,10 @@ class ValidationListener(ConsumerMixin):
         submission_url = submission["_links"]["self"]["href"]
         print(submission)
 
-        
-        if submission["graphValidationState"] != "Pending":
-            raise RuntimeError(f"Cannot perform validation on submission {subid} as grapValidationState is not 'Pending'")
-        
         try:
+            if submission["graphValidationState"] != "Pending":
+                raise RuntimeError(f"Cannot perform validation on submission {subid} as grapValidationState is not 'Pending'")
+            
             self._ingest_api.put(f'{submission_url}/graphValidatingEvent', data=None)
 
             validation_result = ValidationHandler(subid, self._graph, self._test_path).run()
