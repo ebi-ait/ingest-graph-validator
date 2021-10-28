@@ -30,5 +30,3 @@ services:
     volumes:
       - /home/jcbwndsr/.secrets:/.secrets
       - /home/jcbwndsr/.secrets/gcp_credentials:/.secrets/gcp_credentials
-    extra_hosts:
-      - "host.docker.internal:host-gateway"

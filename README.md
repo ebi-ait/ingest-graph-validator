@@ -164,10 +164,23 @@ The root level commands are:
 * **`ingest-graph-validator shutdown`** stops the backend.
 
 
-## Containerized execution
+### Running as a queue listener
+It is possible to run the graph validator so that it listens to a queue on RabbitMQ that receives submission UUIDs. Once a message is received from the queue the hydrate and action commands are ran for the given submission UUID.
 
-WIP
+`ingest-graph-validator action ingest-validator graph_test_set`
 
+The above command runs the listener for the `graph_test_set`
+
+Note that RabbitMQ and neo4j need to be running locally for the above to work. Alternatively you can run the whole stack with docker-compose
+
+#### Running queue listener with docker-compose
+`docker-compose up --build`
+
+This will spin up the graph validator and listen to the queue. If you wish to post messages to the queue you can:
+
+1. Ensure you have a locally running and populated [Ingest Mongo DB](https://ebi-ait.github.io/hca-ebi-dev-team/admin_setup/Onboarding.html#mongodb)
+2. Run ingest core locally
+3. Use the `localhost:8080/submissionEnvelopes/<ID>/validateGraph` endpoint to add to the queue
 
 # Extra stuff
 
