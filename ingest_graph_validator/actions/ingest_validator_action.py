@@ -57,7 +57,6 @@ class ValidationListener(ConsumerMixin):
         return [Consumer(queues=self.validation_queue, accept=["application/json;charset=UTF-8", "json"], on_message=self.handle_message, prefetch_count=10)]
 
     def handle_message(self, message):
-        print(message.payload)
         payload = json.loads(message.payload)
         subid = payload['documentUuid']
         
@@ -70,7 +69,6 @@ class ValidationListener(ConsumerMixin):
 
         submission = self._ingest_api.get_submission_by_uuid(subid)
         submission_url = submission["_links"]["self"]["href"]
-        print(submission)
 
         try:
             if submission["graphValidationState"] != "Pending":
