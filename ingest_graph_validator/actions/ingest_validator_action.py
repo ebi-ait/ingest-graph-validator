@@ -71,8 +71,8 @@ class ValidationListener(ConsumerMixin):
         submission_url = submission["_links"]["self"]["href"]
 
         try:
-            if submission["graphValidationState"] != "Validating":
-                 self._logger.error(f"Cannot perform validation on submission {subid} as grapValidationState is not 'Pending'")
+            if submission["graphValidationState"] == "Validating":
+                 self._logger.error(f"Cannot perform validation on submission {subid} as it is already validating.")
                  message.ack()
                  return
             
