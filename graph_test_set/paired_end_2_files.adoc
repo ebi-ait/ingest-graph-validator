@@ -11,7 +11,7 @@ When a sequencing protocol is paired-end, test whether it has 2 or more sequenci
 ----
 MATCH (s:sequencing_protocol)<-[:PROTOCOLS]-(p:process)<-[d]-(f:sequence_file)
 WITH s, p, f, COUNT(d) as num_files
-WHERE s.`paired_end` = false
+WHERE s.`paired_end` = true
 AND NOT num_files >= 2
 RETURN num_files, f.`file_core.file_name`
 ----
