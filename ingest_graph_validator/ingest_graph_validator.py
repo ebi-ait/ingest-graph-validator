@@ -15,12 +15,12 @@ import click
 import docker
 import glob
 import logging
-import os
+import os, time
 from pathlib import Path
 import requests
 import zipfile
 
-from py2neo import Graph
+from py2neo import Graph, errors
 
 from .config import Config, Defaults, init_config, NEO4J_PLUGINS
 from .logger import init_logger, log_levels_map
@@ -57,12 +57,28 @@ def entry_point(ctx, log_level, db_url, bolt_port, frontend_port):
 
     if db_url:
         logger.info(f"using neo4j server at {db_url}:{bolt_port}")
+        ctx.obj.usingExternalNeo4j = True
     else:
         logger.info(f"starting neo4j docker instance")
         ctx.obj.backend = Neo4jServer()
+        ctx.obj.usingExternalNeo4j = False
 
-    ctx.obj.graph = Graph(f"{Config['NEO4J_DB_URL']}:{Config['NEO4J_BOLT_PORT']}", user=Config['NEO4J_DB_USERNAME'],
-                          password=Config['NEO4J_DB_PASSWORD'])
+    retries = 0
+    while True:
+        try:
+            logger.info("Connecting to neo4j...")
+            retries+=1
+            ctx.obj.graph = Graph(f"{Config['NEO4J_DB_URL']}:{Config['NEO4J_BOLT_PORT']}", user=Config['NEO4J_DB_USERNAME'],
+                                password=Config['NEO4J_DB_PASSWORD'])
+            break
+            
+        except errors.ConnectionUnavailable:
+            logger.info("Couldn't connect to neo4j, retrying...")
+            if retries >= 10:
+                raise Exception("Tried to connect to neo4j more than 10 times. Exiting")
+            
+            time.sleep(5)
+
 
     populate_commands()
 
@@ -102,7 +118,7 @@ def hydrate(ctx, keep_contents):
 
     logger = logging.getLogger(__name__)
 
-    if ctx.obj.backend is None or not ctx.obj.backend.is_alive():
+    if not ctx.obj.usingExternalNeo4j and (ctx.obj.backend is None or not ctx.obj.backend.is_alive()):
         logger.error("no backend container found")
         exit(1)
 
@@ -118,7 +134,7 @@ def action(ctx):
 
     logger = logging.getLogger(__name__)
 
-    if ctx.obj.backend is None or not ctx.obj.backend.is_alive():
+    if not ctx.obj.usingExternalNeo4j and (ctx.obj.backend is None or not ctx.obj.backend.is_alive()):
         logger.error("no backend container found")
         exit(1)
 
