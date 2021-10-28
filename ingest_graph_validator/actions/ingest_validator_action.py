@@ -73,7 +73,7 @@ class ValidationListener(ConsumerMixin):
         try:
             if submission["graphValidationState"] != "Validating":
                  self._logger.error(f"Cannot perform validation on submission {subid} as grapValidationState is not 'Pending'")
-                 message.nack()
+                 message.ack()
                  return
             
             self._ingest_api.put(f'{submission_url}/graphValidatingEvent', data=None)
