@@ -40,7 +40,7 @@ class ValidationListener(ConsumerMixin):
         self._graph = graph
         self._test_path = test_path
 
-        if Config["INGEST_API"] == "http://localhost:8080":
+        if Config["INGEST_API"] == "http://localhost:8080" or not (Config["GOOGLE_APPLICATION_CREDENTIALS"] and Config["INGEST_JWT_AUDIENCE"]):
             self._ingest_api = IngestApi(Config['INGEST_API'])
         else:
             s2s_token_client = S2STokenClient(
