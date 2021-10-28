@@ -4,16 +4,31 @@
 version: "3.5"
 
 services:
-  neo4j-server:
-    image: neo4j:latest
+  neo4j:
+    image: neo4j:3.5.14-enterprise
     ports:
       - "7474:7474"
       - "7687:7687"
     environment:
       - NEO4J_AUTH=neo4j/password
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+  rabbitmq:
+    image: rabbitmq:3.9.8
+    ports:
+      - "5672:5672"
+      - "15672:15672"
   validator-app:
     build: .
     depends_on:
-      - neo4j-server
+      - neo4j
+      - rabbitmq
     environment:
-      - NEO4J_DB_URL=bolt://neo4j-server:7687
+      - INGEST_GRAPH_VALIDATOR_NEO4J_URL=bolt://neo4j
+      - AMQP_CONNECTION=amqp://guest:guest@rabbitmq:5672
+      - INGEST_GRAPH_VALIDATOR_INGEST_API_URL=https://api.ingest.dev.archive.data.humancellatlas.org
+      - INGEST_GRAPH_VALIDATOR_INGEST_JWT_AUDIENCE=https://dev.data.humancellatlas.org/
+    volumes:
+      - /home/jcbwndsr/.secrets:/.secrets
+      - /home/jcbwndsr/.secrets/gcp_credentials:/.secrets/gcp_credentials
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
