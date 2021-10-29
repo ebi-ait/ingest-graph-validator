@@ -96,6 +96,8 @@ class ValidationListener(ConsumerMixin):
             self._ingest_api.put(f'{submission_url}/graphPendingEvent', data=None)
             message.ack()
 
+        self._graph.delete_all()
+
 
 class IngestValidatorAction:
 
