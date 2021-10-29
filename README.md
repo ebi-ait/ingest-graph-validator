@@ -174,14 +174,17 @@ The above command runs the listener for the `graph_test_set`
 Note that RabbitMQ and neo4j need to be running locally for the above to work. Alternatively you can run the whole stack with docker-compose
 
 #### Running queue listener with docker-compose
-`docker-compose up --build`
+1. `mkdir _secrets; aws secretsmanager get-secret-value --region us-east-1 --secret-id ingest/dev/gcp-credentials.json | jq -r .SecretString > _secrets/gcp_credentials`
+  - The ingest-graph-validator uses the dev ingest API as configured in docker-compose.yml
+2. `docker-compose up --build`
+3. Ensure you have a locally running and populated [Ingest Mongo DB](https://ebi-ait.github.io/hca-ebi-dev-team/admin_setup/Onboarding.html#mongodb)
+4. Run ingest core locally
+5. Use the `localhost:8080/submissionEnvelopes/<ID>/validateGraph` endpoint to add to the queue
+  - Since the graph validator is running and listening to dev ingest API, make sure you are submitting a submission ID that exists in dev
+  - It is not possible to forward local ports to the docker network created by docker-compose so cannot expose the locally running ingest core to the running ingest-graph-validator container
 
-This will spin up the graph validator and listen to the queue. If you wish to post messages to the queue you can:
 
-1. Ensure you have a locally running and populated [Ingest Mongo DB](https://ebi-ait.github.io/hca-ebi-dev-team/admin_setup/Onboarding.html#mongodb)
-2. Run ingest core locally
-3. Use the `localhost:8080/submissionEnvelopes/<ID>/validateGraph` endpoint to add to the queue
-
+*Note: change the environment variables defined in docker-compose.yml to connect to prod or staging ingest API*
 # Extra stuff
 
 ## Useful cypher queries

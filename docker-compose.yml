@@ -25,8 +25,8 @@ services:
     environment:
       - INGEST_GRAPH_VALIDATOR_NEO4J_URL=bolt://neo4j
       - AMQP_CONNECTION=amqp://guest:guest@rabbitmq:5672
-      - INGEST_GRAPH_VALIDATOR_INGEST_API_URL=https://api.ingest.dev.archive.data.humancellatlas.org
-      - INGEST_GRAPH_VALIDATOR_INGEST_JWT_AUDIENCE=https://dev.data.humancellatlas.org/
+      - INGEST_GRAPH_VALIDATOR_INGEST_API_URL=https://api.ingest.archive.data.humancellatlas.org
+      - INGEST_GRAPH_VALIDATOR_INGEST_JWT_AUDIENCE=https://data.humancellatlas.org/
     volumes:
-      - /home/jcbwndsr/.secrets:/.secrets
-      - /home/jcbwndsr/.secrets/gcp_credentials:/.secrets/gcp_credentials
+      - ./_secrets:/.secrets
+      - ./_secrets/gcp_credentials:/.secrets/gcp_credentials
