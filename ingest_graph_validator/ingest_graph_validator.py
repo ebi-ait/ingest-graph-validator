@@ -29,6 +29,11 @@ from .actions import get_actions
 from .hydrators import get_hydrators
 from .utils import download_file
 
+def _check_backend_container(ctx, logger):
+    if ctx.obj.usingExternalNeo4j and (ctx.obj.backend is None or not ctx.obj.backend.is_alive()):
+        logger.error("no backend container found")
+        exit(1)
+
 
 @click.group(context_settings={'help_option_names': ["-h", "--help"]})
 @click.option("-l", "--log-level", type=click.Choice(list(log_levels_map.keys())), default=Defaults['LOG_LEVEL'],
@@ -118,9 +123,7 @@ def hydrate(ctx, keep_contents):
 
     logger = logging.getLogger(__name__)
 
-    if not ctx.obj.usingExternalNeo4j and (ctx.obj.backend is None or not ctx.obj.backend.is_alive()):
-        logger.error("no backend container found")
-        exit(1)
+    _check_backend_container(ctx, logger)
 
     if not keep_contents:
         logger.debug("cleaning up graph")
@@ -134,9 +137,8 @@ def action(ctx):
 
     logger = logging.getLogger(__name__)
 
-    if not ctx.obj.usingExternalNeo4j and (ctx.obj.backend is None or not ctx.obj.backend.is_alive()):
-        logger.error("no backend container found")
-        exit(1)
+    _check_backend_container(ctx, logger)
+
 
 
 def populate_commands():
