@@ -1,61 +1,144 @@
-argcomplete==1.10.3
-atomicwrites==1.3.0
-boto3==1.10.28
-botocore==1.13.28
-cachetools==3.1.1
-certifi==2019.11.28
-cffi==1.13.2
-chardet==3.0.4
-Click==7.0
-colorama==0.4.1
-commonmark==0.9.1
-coverage==4.5.4
-crc32c==1.7
-cryptography==2.8
-dcplib==2.1.2
-docker==4.1.0
-docutils==0.15.2
-et-xmlfile==1.0.1
-google-auth==1.7.1
-google-auth-oauthlib==0.4.1
-hca==7.0.0
-hca-ingest==0.6.12
-idna==2.8
-jdcal==1.4.1
-Jinja2==2.10.3
-jmespath==0.9.4
-jsonpointer==1.14
-jsonref==0.2
-jsonschema==2.6.0
-MarkupSafe==1.1.1
-neobolt==1.7.15
-neotime==1.7.4
-oauthlib==3.1.0
-openpyxl==3.0.2
-polling==0.3.1
-prompt-toolkit==2.0.10
-puremagic==1.4
-py2neo==4.3.0
-pyasn1==0.4.8
-pyasn1-modules==0.2.7
-pycparser==2.19
-Pygments==2.3.1
-PyJWT==1.7.1
-pyOpenSSL==19.1.0
-python-dateutil==2.8.0
-pytz==2019.3
-PyYAML==5.3.1
-requests==2.22.0
-requests-oauthlib==1.3.0
-rsa==4.0
-s3transfer==0.2.1
-six==1.13.0
-tenacity==5.0.4
-tqdm==4.39.0
-tweak==1.0.3
-urllib3==1.24.3
-wcwidth==0.1.7
-websocket-client==0.56.0
-XlsxWriter==1.2.6
-kombu==4.6.8
-wheel==0.33.6
+amqp~=2.5.2
+    # via
+    #   ingest-graph-validator (setup.py)
+    #   kombu
+certifi~=2020.12.5
+    # via
+    #   ingest-graph-validator (setup.py)
+    #   py2neo
+    #   requests
+cffi~=1.14.4
+    # via
+    #   cryptography
+    #   ingest-graph-validator (setup.py)
+chardet~=4.0.0
+    # via
+    #   ingest-graph-validator (setup.py)
+    #   requests
+click~=7.0
+    # via ingest-graph-validator (setup.py)
+coverage~=5.3.1
+    # via ingest-graph-validator (setup.py)
+cryptography~=3.3.1
+    # via
+    #   ingest-graph-validator (setup.py)
+    #   pyopenssl
+    #   requests
+dataclasses~=0.6
+    # via ingest-graph-validator (setup.py)
+docker~=4.1.0
+    # via ingest-graph-validator (setup.py)
+et-xmlfile~=1.0.1
+    # via
+    #   ingest-graph-validator (setup.py)
+    #   openpyxl
+idna~=2.10
+    # via
+    #   ingest-graph-validator (setup.py)
+    #   requests
+interchange~=2021.0.4
+    # via
+    #   ingest-graph-validator (setup.py)
+    #   py2neo
+jdcal~=1.4.1
+    # via
+    #   ingest-graph-validator (setup.py)
+    #   openpyxl
+jsonref~=0.2
+    # via ingest-graph-validator (setup.py)
+jsonschema~=2.6.0
+    # via ingest-graph-validator (setup.py)
+kombu~=4.6.8
+    # via ingest-graph-validator (setup.py)
+mergedeep~=1.3.1
+    # via ingest-graph-validator (setup.py)
+monotonic~=1.6
+    # via
+    #   ingest-graph-validator (setup.py)
+    #   py2neo
+oauthlib~=3.1.1
+    # via
+    #   ingest-graph-validator (setup.py)
+    #   requests-oauthlib
+openpyxl~=3.0.5
+    # via ingest-graph-validator (setup.py)
+packaging~=21.0
+    # via
+    #   ingest-graph-validator (setup.py)
+    #   py2neo
+pansi~=2020.7.3
+    # via
+    #   ingest-graph-validator (setup.py)
+    #   py2neo
+polling~=0.3.1
+    # via ingest-graph-validator (setup.py)
+py2neo~=2021.2.3
+    # via ingest-graph-validator (setup.py)
+pyasn1-modules~=0.2.7
+    # via ingest-graph-validator (setup.py)
+pyasn1~=0.4.8
+    # via
+    #   ingest-graph-validator (setup.py)
+    #   pyasn1-modules
+pycparser~=2.20
+    # via
+    #   cffi
+    #   ingest-graph-validator (setup.py)
+pygments~=2.10.0
+    # via
+    #   ingest-graph-validator (setup.py)
+    #   py2neo
+pyjwt~=2.0.0
+    # via ingest-graph-validator (setup.py)
+pyopenssl~=20.0.1
+    # via
+    #   ingest-graph-validator (setup.py)
+    #   requests
+pyparsing~=3.0.2
+    # via
+    #   ingest-graph-validator (setup.py)
+    #   packaging
+python-dateutil~=2.8.1
+    # via ingest-graph-validator (setup.py)
+pytz~=2021.3
+    # via
+    #   ingest-graph-validator (setup.py)
+    #   interchange
+pyyaml~=5.3.1
+    # via ingest-graph-validator (setup.py)
+requests-oauthlib~=1.3.0
+    # via ingest-graph-validator (setup.py)
+requests[security]~=2.25.1
+    # via
+    #   docker
+    #   ingest-graph-validator (setup.py)
+    #   requests-oauthlib
+six~=1.15.0
+    # via
+    #   cryptography
+    #   docker
+    #   ingest-graph-validator (setup.py)
+    #   interchange
+    #   pansi
+    #   py2neo
+    #   pyopenssl
+    #   python-dateutil
+sortedcontainers~=2.3.0
+    # via ingest-graph-validator (setup.py)
+urllib3~=1.25.11
+    # via
+    #   ingest-graph-validator (setup.py)
+    #   py2neo
+    #   requests
+vine~=1.3.0
+    # via
+    #   amqp
+    #   ingest-graph-validator (setup.py)
+websocket-client~=1.2.1
+    # via
+    #   docker
+    #   ingest-graph-validator (setup.py)
+wheel~=0.33.6
+    # via ingest-graph-validator (setup.py)
+xlsxwriter~=1.3.7
+    # via ingest-graph-validator (setup.py)

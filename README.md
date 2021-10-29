@@ -164,11 +164,34 @@ The root level commands are:
 * **`ingest-graph-validator shutdown`** stops the backend.
 
 
-## Containerized execution
+### Running as a queue listener
+It is possible to run the graph validator so that it listens to a queue on RabbitMQ that receives submission UUIDs. Once a message is received from the queue the hydrate and action commands are ran for the given submission UUID.
 
-WIP
+`ingest-graph-validator action ingest-validator graph_test_set`
+
+The above command runs the listener for the `graph_test_set`
+
+#### Running queue listener locally against locally running ingest
+1. Ensure you have a locally running and populated [Ingest Mongo DB](https://ebi-ait.github.io/hca-ebi-dev-team/admin_setup/Onboarding.html#mongodb)
+2. Make sure ingest-core and rabbitMQ are running
+3. `export INGEST_GRAPH_VALIDATOR_INGEST_API_URL=http://localhost:8080`
+4. `docker run -p7687:7687 -p7474:7474 --env NEO4J_AUTH=neo4j/password --env=NEO4J_ACCEPT_LICENSE_AGREEMENT=yes neo4j:3.5.14-enterprise`
+5. `ingest-graph-validator action ingest-validator graph_test_set`
+6. Use the `localhost:8080/submissionEnvelopes/<ID>/validateGraph` endpoint to add to the queue
 
 
+#### Running queue listener with docker-compose
+1. `mkdir _secrets; aws secretsmanager get-secret-value --region us-east-1 --secret-id ingest/dev/gcp-credentials.json | jq -r .SecretString > _secrets/gcp_credentials`
+  - The ingest-graph-validator uses the dev ingest API as configured in docker-compose.yml
+2. `docker-compose up --build`
+3. Ensure you have a locally running and populated [Ingest Mongo DB](https://ebi-ait.github.io/hca-ebi-dev-team/admin_setup/Onboarding.html#mongodb)
+4. Run ingest core locally
+5. Use the `localhost:8080/submissionEnvelopes/<ID>/validateGraph` endpoint to add to the queue
+  - Since the graph validator is running and listening to dev ingest API, make sure you are submitting a submission ID that exists in dev
+  - It is not possible to forward local ports to the docker network created by docker-compose so cannot expose the locally running ingest core to the running ingest-graph-validator container
+
+
+*Note: change the environment variables defined in docker-compose.yml to connect to prod or staging ingest API*
 # Extra stuff
 
 ## Useful cypher queries

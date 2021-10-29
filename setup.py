@@ -9,7 +9,8 @@ from setuptools import setup, find_packages
 
 
 # Required packages to install.
-requirements = [line.rstrip() for line in open(path.join(path.dirname(__file__), 'requirements.txt'))]
+base_dir = path.dirname(__file__)
+install_requires = [line.rstrip() for line in open(path.join(base_dir, 'requirements.txt'))]
 
 setup_requirements = ["pytest-runner", ]
 
@@ -40,7 +41,10 @@ setup(
             "ingest-graph-validator=ingest_graph_validator.ingest_graph_validator:entry_point",
         ],
     },
-    install_requires=requirements,
+    install_requires=[
+        'hca-ingest @ git+https://github.com/ebi-ait/ingest-client.git@782dd754#egg=hca_ingest',
+        install_requires
+    ],
     license="MIT license",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -52,6 +56,6 @@ setup(
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/ebi-ait/ingest-graph-validator",
-    version="0.6.2",
+    version="0.7.2",
     zip_safe=False,
 )
