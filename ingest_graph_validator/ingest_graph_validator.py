@@ -30,7 +30,7 @@ from .hydrators import get_hydrators
 from .utils import download_file
 
 def _check_backend_container(ctx, logger):
-    if ctx.obj.usingExternalNeo4j and (ctx.obj.backend is None or not ctx.obj.backend.is_alive()):
+    if not ctx.obj.usingExternalNeo4j and (ctx.obj.backend is None or not ctx.obj.backend.is_alive()):
         logger.error("no backend container found")
         exit(1)
 
