@@ -46,7 +46,7 @@ class TestAction:
 
         
         self._logger.info("All tests finished")
-        error_message = f"Failed test names: f{', '.join(total_result.keys())}"
+        error_message = f"Failed test names: {', '.join(total_result.keys())}"
 
         return {
             "message": error_message,
