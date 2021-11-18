@@ -38,9 +38,25 @@ class TestAction:
                 is_valid = False
                 self._logger.error(f"test [{test_name}] failed: non-empty result.")
                 self._logger.error(f"result: {result}")
+
+                affected_entities = []
+                message = None
+
+                for node in result:
+                    entity, msg, labels = node.values()
+
+                    if not message:
+                        message = msg
+
+                    affected_entities.append({
+                        "uuid": entity.get('uuid', 'unset'),
+                        "types": labels
+                    })
+
                 failures.append({
                     "test": test_name,
-                    "message": list(result[0].values())[1]
+                    "message": message,
+                    "affected_entities": affected_entities
                 })
 
                 if self._exit_on_failure is True:
