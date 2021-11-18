@@ -82,12 +82,11 @@ class ValidationListener(ConsumerMixin):
 
             if validation_result is not None:
                 self._logger.info(f"validation finished for {subid}")
-                self._logger.debug(f"result: {validation_result['message']}")
 
                 if validation_result["valid"]:
                     self._ingest_api.put(f'{submission_url}/graphValidEvent', data=None)
                 else:
-                    self._ingest_api.put(f'{submission_url}/graphInvalidEvent', data=validation_result["message"])
+                    self._ingest_api.put(f'{submission_url}/graphInvalidEvent', data=validation_result["failures"])
 
                 message.ack()
         except Exception as e:
