@@ -9,6 +9,7 @@
 [source,cypher]
 ----
 <CYPHER QUERY>
+RETURN x, "A USEFUL DESCRIPTION", labels(x)
 ----
 
 
