@@ -1,0 +1,17 @@
+## Test: HSAPDV ontology is used for human donors
+
+#### Test description
+
+Ensure the Human developmental stages ontology is used for human donors to describe their development stage.
+
+
+
+
+#### The test
+[source,cypher]
+----
+MATCH (d:donor_organism)
+WHERE d.`biomaterial_core.ncbi_taxon_id` = "[9606]"
+AND NOT toLower(d.`development_stage.ontology`) STARTS WITH "hsapdv"
+RETURN d, "For human donors' development stage, please use terms within the HSAPDV ontology", labels(d)
+----
