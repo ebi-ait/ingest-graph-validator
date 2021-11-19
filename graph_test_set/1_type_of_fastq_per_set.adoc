@@ -1,0 +1,18 @@
+## Test: Library preparations should only contain 1 read type per lane index
+
+#### Test description
+
+Library preparations (defined by process ID of the process linking cell suspension to sequence files) should never
+contain a repeated type of read within the same lane (e.g. only 1 R1 in library_prep_1 and lane_index=1).
+
+
+
+#### The test
+[source,cypher]
+----
+MATCH path = (c:cell_suspension)-[]-(p:process)-[]-(s:sequence_file)
+WITH p.`process_core.process_id` + "_" + s.lane_index + "_" + s.`read_index` as uniq_process_lane_type, s as sequencefile, p as p
+WITH distinct(uniq_process_lane_type) as uniq_files, count(distinct(sequencefile)) as x, p as p
+WHERE x > 1
+RETURN p, "Incorrect number of files per set of fastq files", labels(p)
+----

@@ -8,37 +8,8 @@ Ensure that exactly one pair of sequencing and library preparation  protocols ar
 #### The test
 [source,cypher]
 ----
-/////////////////////////////////////////
-// Exactly one pair of sequencing and
-// library preparation  protocols are
-// linked to each sequence_file.
-// 2020-07-03; Ray Stefancsik
-/////////////////////////////////////////
-MATCH (f:sequence_file)
-OPTIONAL MATCH
-      (n:process)-[:PROTOCOLS]->(p:sequencing_protocol)
-    , (n)-[:PROTOCOLS]->(q:library_preparation_protocol)
-    , (f)-->(n)
-WITH f
-    , count(n) AS rowCount
-    , 'ERROR:  missing sequencing or library preparation protocol.' AS message
-WHERE rowCount <> 1 // NULL values do not count 
-RETURN f.`file_core.file_name` AS file_name, message
-/////////////////////////////////////////
+MATCH (f:sequence_file)-[:DERIVED_BY_PROCESSES]->(p:process)
+WHERE NOT (p)-[:PROTOCOLS]-(:sequencing_protocol)
+OR NOT (p)-[:PROTOCOLS]-(:library_preparation_protocol)
+RETURN p, "Missing sequencing or library preparation protocol", labels(p)
 ----
-
-
-[NOTE]
-.Information about Graph Validation Tests
-========================================
-* Each cypher snippet in `.adoc` files in the specified folder will run.
-* The cypher snippet should be contained between these specific lines:
-```
-#### The test
-[source,cyper]
-----
-<TEST HERE>
-----
-```
-* The test passes if the cypher query returns no results.
-========================================

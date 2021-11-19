@@ -8,7 +8,6 @@ The same sequence data file must not be linked to two different processes.
 #### The test
 [source,cypher]
 ----
-/////////////////////////////////////////
 // The same sequence data file
 // must not be linked to
 // two different processes.
@@ -16,26 +15,8 @@ The same sequence data file must not be linked to two different processes.
 MATCH (f:sequence_file)<-[:DERIVED_FILES]-(p:process)
 WITH count(DISTINCT p) AS linkedNodeCount
    , collect(p) AS linkedNodes
-   , f.`file_core.file_name` AS filename
+   , f
    , 'The same file must not be linked to two different processes.' AS message
 WHERE linkedNodeCount > 1
-RETURN filename, linkedNodeCount, linkedNodes
-ORDER BY linkedNodeCount  DESC, filename ASC
-/////////////////////////////////////////
+RETURN f, format("A sequence file was found attached to {} different processes", "{}", toString(linkedNodeCount)), labels(f)
 ----
-
-
-[NOTE]
-.Information about Graph Validation Tests
-========================================
-* Each cypher snippet in `.adoc` files in the specified folder will run.
-* The cypher snippet should be contained between these specific lines:
-```
-#### The test
-[source,cyper]
-----
-<TEST HERE>
-----
-```
-* The test passes if the cypher query returns no results.
-========================================

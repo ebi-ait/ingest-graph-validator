@@ -18,19 +18,3 @@ OR p.`cell_barcode.barcode_offset` is NULL // Offset of cell barcode
 OR p.`cell_barcode.barcode_length` is NULL)// Length of cell barcode
 RETURN p, "Missing information for cell barcode", labels(p)
 ----
-
-
-[NOTE]
-.Informaton about Graph Validation Tests
-========================================
-* Each cypher snippet in `.adoc` files in the specified folder will run.
-* The cypher snippet should be contained between these specific lines:
-```
-#### The test
-[source,cyper]
-----
-<TEST HERE>
-----
-```
-* The test passes if the cypher query returns no results.
-========================================

@@ -15,21 +15,5 @@ do not exist.
 MATCH (p:protocol), (n:supplementary_file)
 WITH p, COLLECT (n.`file_core.file_name`) AS filenames
 WHERE NOT p.`protocol_core.document` IN filenames
-RETURN p.`protocol_core.document`
+RETURN p, "Document related to protocol should be specified as a supplementary file", labels(p)
 ----
-
-
-[NOTE]
-.Informaton about Graph Validation Tests
-========================================
-* Each cypher snippet in `.adoc` files in the specified folder will run.
-* The cypher snippet should be contained between these specific lines:
-```
-#### The test
-[source,cyper]
-----
-<TEST HERE>
-----
-```
-* The test passes if the cypher query returns no results.
-========================================

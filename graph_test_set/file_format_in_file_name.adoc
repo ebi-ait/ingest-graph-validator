@@ -9,20 +9,5 @@ Test whether file format is present in the name of the file.
 ----
 MATCH (f:sequence_file)
 WHERE NOT f.`file_core.file_name` ENDS WITH f.`file_core.format`
-RETURN f.`file_core.file_name`, "File format doesn't match filename"
+RETURN f, "File format doesn't match filename", labels(f)
 ----
-
-[NOTE]
-.Informaton about Graph Validation Tests
-========================================
-* Each cypher snippet in `.adoc` files in the specified folder will run.
-* The cypher snippet should be contained between these specific lines:
-```
-#### The test
-[source,cyper]
-----
-<TEST HERE>
-----
-```
-* The test passes if the cypher query returns no results.
-========================================

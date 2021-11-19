@@ -13,21 +13,5 @@ MATCH (r:library_preparation_protocol)<-[:PROTOCOLS]-(p:process)<-[d]-(f:file)
 WITH r, p, COUNT(d) as num_files
 WHERE r.`library_construction_method.ontology` = "EFO:0008931" // SmartSeq2
 AND NOT num_files IN [2, 3]
-RETURN num_files
+RETURN p, "Smart-Seq2 protocols should contain between 2 and 3 files"
 ----
-
-
-[NOTE]
-.Informaton about Graph Validation Tests
-========================================
-* Each cypher snippet in `.adoc` files in the specified folder will run.
-* The cypher snippet should be contained between these specific lines:
-```
-#### The test
-[source,cyper]
-----
-<TEST HERE>
-----
-```
-* The test passes if the cypher query returns no results.
-========================================

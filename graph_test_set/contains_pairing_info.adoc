@@ -15,19 +15,3 @@ AND NOT p.`library_construction_method.ontology_label` = "Smart-seq2"
 AND s.`paired_end` is NULL // Checks if field has been filled out
 RETURN p, "Missing information about parity of reads", labels(p)
 ----
-
-
-[NOTE]
-.Informaton about Graph Validation Tests
-========================================
-* Each cypher snippet in `.adoc` files in the specified folder will run.
-* The cypher snippet should be contained between these specific lines:
-```
-#### The test
-[source,cyper]
-----
-<TEST HERE>
-----
-```
-* The test passes if the cypher query returns no results.
-========================================
