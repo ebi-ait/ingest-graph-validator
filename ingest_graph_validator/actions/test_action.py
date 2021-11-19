@@ -56,7 +56,7 @@ class TestAction:
                 failures.append({
                     "test": test_name,
                     "message": message,
-                    "affected_entities": affected_entities
+                    "affectedEntities": affected_entities
                 })
 
                 if self._exit_on_failure is True:
