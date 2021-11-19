@@ -1,4 +1,4 @@
-## Test: Processes using 10x library preparation protocols have 1 or more files linked
+## Test: Processes using 10x library preparation protocols have 2 or more files linked
 
 #### Test description
 
