@@ -56,6 +56,21 @@ class ValidationListener(ConsumerMixin):
     def get_consumers(self, Consumer, channel):
         return [Consumer(queues=self.validation_queue, accept=["application/json;charset=UTF-8", "json"], on_message=self.handle_message, prefetch_count=10)]
 
+    def __patch_entity(self, message, schema_type, uuid):
+        if schema_type == "process":
+            entity_type = "processes"
+        else:
+            entity_type = f'{schema_type}s'
+
+        entity = self._ingest_api.get_entity_by_uuid(entity_type, uuid)
+        entity_url = entity["_links"]["self"]["href"]
+        errors = entity["graphValidationErrors"] or []
+        errors.append(message)
+        patch = {
+            "graphValidationErrors": errors
+        }
+        self._ingest_api.patch(entity_url, patch)
+
     def handle_message(self, message):
         payload = json.loads(message.payload)
         subid = payload['documentUuid']
@@ -80,14 +95,19 @@ class ValidationListener(ConsumerMixin):
 
             validation_result = ValidationHandler(subid, self._graph, self._test_path).run()
 
-            if validation_result is not None:
+            if validation_result is not None:   
                 self._logger.info(f"validation finished for {subid}")
 
                 if validation_result["valid"]:
                     self._ingest_api.put(f'{submission_url}/graphValidEvent', data=None)
                 else:
-                    self._ingest_api.put(f'{submission_url}/graphInvalidEvent', data=validation_result["failures"])
+                    self._ingest_api.put(f'{submission_url}/graphInvalidEvent', data=None)
 
+                    for failure in validation_result["failures"]:
+                        for entity in failure['affectedEntities']:
+                            self.__patch_entity(failure['message'], entity['types'][0], entity['uuid'])
+
+                self._logger.info(f'Finished validating {subid}.    ')
                 message.ack()
         except Exception as e:
             self._logger.error(f"Failed with error {e}.")
