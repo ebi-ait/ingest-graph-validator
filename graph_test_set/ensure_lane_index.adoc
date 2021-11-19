@@ -20,5 +20,5 @@ WITH
     , count(*) AS fileCount
 WHERE fileCount > 1 // Check that there are multiple sequence files for each type [ 'read1', 'read2', 'index1', 'index2'] belonging to a single process so that lane_index is required.
   AND size(lane_indexes) <> fileCount //The total number of sequence files and the number of sequence files that have a lane_index in each category must be equal to pass the test.
-RETURN p, format("If more than 3 files are linked to a sequencing process, lane indices must be noted. Files in this process: {}", "{}", toString(fileCount)), labels(p)
+RETURN p, replace("If more than 3 files are linked to a sequencing process, lane indices must be noted. Files in this process: {}", "{}", toString(fileCount)), labels(p)
 ----

@@ -18,5 +18,5 @@ WITH count(DISTINCT p) AS linkedNodeCount
    , f
    , 'The same file must not be linked to two different processes.' AS message
 WHERE linkedNodeCount > 1
-RETURN f, format("A sequence file was found attached to {} different processes", "{}", toString(linkedNodeCount)), labels(f)
+RETURN f, replace("A sequence file was found attached to {} different processes", "{}", toString(linkedNodeCount)), labels(f)
 ----
