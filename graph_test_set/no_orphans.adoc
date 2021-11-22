@@ -8,7 +8,8 @@ Every node must have at least one connection.
 
 #### The test
 [source,cypher]
+----
 MATCH (n)
 WHERE NOT (n)-[]-()
-return n, "Entity does not have linkings with any other entity", labels(n)
+RETURN n, "Entity does not have linkings with any other entity", labels(n)
 ----
