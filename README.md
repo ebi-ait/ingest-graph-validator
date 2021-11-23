@@ -40,83 +40,26 @@ The Graph Validator Suite requires docker running in the host machine.
 ```
 git clone git@github.com:ebi-ait/ingest-graph-validator.git
 cd ingest-graph-validator
-pip install .
+pip install -e .
 ```
-
-### <a name="install_pypi"></a>From PyPI
-
-A Python package has been published in (PyPI)[https://pypi.org/project/ingest-graph-validator].
-
-*The installation into a (virtualenv)[https://packaging.python.org/guides/installing-using-pip-and-virtual-environments] is heavily recommended.*
-
-```pip install ingest-graph-validator```
-
-If you install the Graph Validator Suite this way, you should head to the [github repo](https://github.com/ebi-ait/ingest-graph-validator) to get the [graph tests](https://github.com/ebi-ait/ingest-graph-validator/tree/master/graph_test_set) and the [graph reports](https://github.com/ebi-ait/ingest-graph-validator/tree/master/graph_report_set).
-
 
 ## Usage
-
-### Wrangler EC2
-The graph validator is installed on the Wrangler EC2. The Neo4j Browser UI of this instance can be accessed at http://tool.archive.data.humancellatlas.org:7474/browser/.
-
-If you have HCAWrangler user credientials configured in a profile called `hca-util`, the username/password stored in AWS Secrets can be retrieved using the command:
-
-```
-$ aws secretsmanager get-secret-value --secret-id ingest/tool/wrangler/ec2/neo4j --region us-east-1 --query SecretString --output text --profile hca-util
-```
-
-
-To import/load new project into the graph db: 
-- log into the EC2 via SSH
-- navigate to the installation dir and activate the environment
-    ```
-    $ cd /data/tools/ingest-graph-validator/
-    $ . venv/bin/activate
-    ```
-- you don't need to run `ingest-graph-validator init` as the server is already running in the background
-
-- you will need to run the following command before importing a spreadsheet or ingest submission uuid, where password is determined using the aws secretsmanager command shown above (password includes quotation marks):
-
-    ```
-    $ export INGEST_GRAPH_VALIDATOR_NEO4J_DB_PASSWORD=[password]
-    ```
-
-- import a spreadsheet
-    ```
-    $ ingest-graph-validator hydrate xls <path/to/xls>
-    ```
-- import using an ingest submission uuid
-    ```
-    $ ingest-graph-validator hydrate ingest <sub_uuid>
-    ```
-- run tests (commonly used dir is graph_test_set)
-    ```
-    $ ingest-graph-validator action test <path/to/tests_dir>
-    ```
-- don't forget to exit the virtual environment when done
-    ```
-    $ deactivate
-    ```
-
 ### Step by step usage for running locally
 
 1. Ensure Docker is installed and running
 
-1. Once [installed from the Python package](#install_pypi), start the backend by opening a terminal and typing:
+1. `docker run -p7687:7687 -p7474:7474 --env NEO4J_AUTH=neo4j/password --env=NEO4J_ACCEPT_LICENSE_AGREEMENT=yes neo4j:3.5.14-enterprise`
 
-    `ingest-graph-validator init`
-
-    **Keep in mind**, first time executing the `init` command will take longer as it has to pull the Neo4j Docker image from dockerhub.
+1. `export INGEST_GRAPH_VALIDATOR_INGEST_API_URL=https://api.ingest.archive.data.humancellatlas.org/`
+    - If you wish to run the graph validator against a different environment, you can specify the URL to that here (e.g. `http://localhost:8080`)
 
 1. Import a spreadsheet:
-
-    `ingest-graph-validator hydrate xls <spreadsheet filename>`
+    - `ingest-graph-validator hydrate ingest <sub_uuid>` (via ingest)
+    - `ingest-graph-validator hydrate xls <spreadsheet filename>` (via a spreadsheet)
 
 1. Go to <http://localhost:7474> in a browser to open the frontend.
-
-1. Connect to the backend (you do not need to change any fields, leave username/password empty):
-
-   ![](.readme/connect_backend.png)
+    - Username: neo4j
+    - Password: password
 
 1. You can then start writing [cypher queries](https://neo4j.com/graphacademy/online-training/introduction-to-neo4j/) in the input field on top of the web frontend to visualize the graph. For example:
 
@@ -124,32 +67,29 @@ To import/load new project into the graph db:
 
     Will show the entire graph. Keep in mind this will crash the browser on huge datasets.
 
-**Note**
-The server backend will continue running in the background, and you only need to open the browser again to continue your work. If you want to shutdown the backend, open a terminal and type:
+1. Run tests
+    - `ingest-graph-validator action test <path_to_tests>`
+    - e.g `ingest-graph-validator action test graph_test_set`
 
-`ingest-graph-validator shutdown`
+### Running as a queue listener
+It is possible to run the graph validator so that it listens to a queue on RabbitMQ that receives submission UUIDs. Once a message is received from the queue the hydrate and action commands are ran for the given submission UUID. This is how the graph validator is ran in the Ingest k8s infrastructure
 
-### How to run tests
-In order to run the tests in the `graph_test_set` directory, you need to run the following commands:
+`ingest-graph-validator action ingest-validator graph_test_set`
 
-1. In a shell, run:
-```
-ingest-graph-validator init
-```
-If you want to run using an ingest submission uuid:
-```
-ingest-graph-validator hydrate ingest <ingest_submission_uuid>
-```
-If you want to run using a spreadsheet
-```
-ingest-graph-validator hydrate xls <path/to/spreadsheet>
-```
-then
-```
-ingest-graph-validator action test <path_to_tests>
-```
+The above command runs the listener for the `graph_test_set`
 
-### More help
+#### Running queue listener locally against locally running ingest
+1. Ensure you have a locally running and populated [Ingest Mongo DB](https://ebi-ait.github.io/hca-ebi-dev-team/admin_setup/Onboarding.html#mongodb)
+2. Make sure ingest-core and rabbitMQ are running
+3. `export INGEST_GRAPH_VALIDATOR_INGEST_API_URL=http://localhost:8080`
+4. `docker run -p7687:7687 -p7474:7474 --env NEO4J_AUTH=neo4j/password --env=NEO4J_ACCEPT_LICENSE_AGREEMENT=yes neo4j:3.5.14-enterprise`
+5. `ingest-graph-validator action ingest-validator graph_test_set`
+6. Trigger graph validation via:
+    - Run the UI locally and trigger through the submission page
+    - Or `curl -X POST http://localhost:8080/submissionEnvelopes/<submission_id>/validateGraph`
+
+
+## More help
 
 The Graph Validator Suite uses a CLI similar to [git](https://git-scm.com/). Running a command without specifying anything else will show help for that command. At each level, the commands have different arguments and options. Running any subcommand with `-h` or `--help` with give you more information about it.
 
@@ -163,35 +103,6 @@ The root level commands are:
 
 * **`ingest-graph-validator shutdown`** stops the backend.
 
-
-### Running as a queue listener
-It is possible to run the graph validator so that it listens to a queue on RabbitMQ that receives submission UUIDs. Once a message is received from the queue the hydrate and action commands are ran for the given submission UUID.
-
-`ingest-graph-validator action ingest-validator graph_test_set`
-
-The above command runs the listener for the `graph_test_set`
-
-#### Running queue listener locally against locally running ingest
-1. Ensure you have a locally running and populated [Ingest Mongo DB](https://ebi-ait.github.io/hca-ebi-dev-team/admin_setup/Onboarding.html#mongodb)
-2. Make sure ingest-core and rabbitMQ are running
-3. `export INGEST_GRAPH_VALIDATOR_INGEST_API_URL=http://localhost:8080`
-4. `docker run -p7687:7687 -p7474:7474 --env NEO4J_AUTH=neo4j/password --env=NEO4J_ACCEPT_LICENSE_AGREEMENT=yes neo4j:3.5.14-enterprise`
-5. `ingest-graph-validator action ingest-validator graph_test_set`
-6. Use the `localhost:8080/submissionEnvelopes/<ID>/validateGraph` endpoint to add to the queue
-
-
-#### Running queue listener with docker-compose
-1. `mkdir _secrets; aws secretsmanager get-secret-value --region us-east-1 --secret-id ingest/dev/gcp-credentials.json | jq -r .SecretString > _secrets/gcp_credentials`
-  - The ingest-graph-validator uses the dev ingest API as configured in docker-compose.yml
-2. `docker-compose up --build`
-3. Ensure you have a locally running and populated [Ingest Mongo DB](https://ebi-ait.github.io/hca-ebi-dev-team/admin_setup/Onboarding.html#mongodb)
-4. Run ingest core locally
-5. Use the `localhost:8080/submissionEnvelopes/<ID>/validateGraph` endpoint to add to the queue
-  - Since the graph validator is running and listening to dev ingest API, make sure you are submitting a submission ID that exists in dev
-  - It is not possible to forward local ports to the docker network created by docker-compose so cannot expose the locally running ingest core to the running ingest-graph-validator container
-
-
-*Note: change the environment variables defined in docker-compose.yml to connect to prod or staging ingest API*
 # Extra stuff
 
 ## Useful cypher queries
@@ -266,24 +177,6 @@ RETURN path
 * HumanTissueTcellActivation: 8b5feb5e-9039-4c54-9e79-053e490c141a
 * HumanMousePancreas: 7b4cd093-bfa5-477e-9c95-69bafc1cb6bf
 
-
-
-
-
-## Releasing a new version to PyPI
-
-You should have a maintainer role access for [this project in PyPI](https://pypi.org/project/ingest-graph-validator/).
-
-1. Bump the version and create a tag
-    ```
-    make patch|minor|major
-    ```
-1. Upload to PyPI
-    ```
-    make release
-    ```
-
 ## Credits
 
 This package was created with [Cookiecutter](https://github.com/audreyr/cookiecutter).
-
