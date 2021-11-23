@@ -48,7 +48,7 @@ pip install -e .
 
 1. Ensure Docker is installed and running
 
-1. `docker run -p7687:7687 -p7474:7474 --env NEO4J_AUTH=neo4j/password --env=NEO4J_ACCEPT_LICENSE_AGREEMENT=yes neo4j:3.5.14-enterprise`
+1. `docker run -p7687:7687 -p7474:7474 --env NEO4J_AUTH=neo4j/password --env=NEO4J_ACCEPT_LICENSE_AGREEMENT=yes neo4j:3.5.14-enterprise` (in another terminal session or with `-d` (detached) flag)
 
 1. `export INGEST_GRAPH_VALIDATOR_INGEST_API_URL=https://api.ingest.archive.data.humancellatlas.org/`
     - If you wish to run the graph validator against a different environment, you can specify the URL to that here (e.g. `http://localhost:8080`)
