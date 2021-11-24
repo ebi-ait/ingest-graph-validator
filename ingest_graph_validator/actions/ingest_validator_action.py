@@ -21,13 +21,13 @@ from ..config import Config
 
 class ValidationHandler():
 
-    def __init__(self, subid, graph, test_path):
-        self._subid = subid
+    def __init__(self, sub_uuid, graph, test_path):
+        self._sub_uuid = sub_uuid
         self._graph = graph
         self._test_path = test_path
 
     def run(self):
-        IngestHydrator(self._graph, self._subid).hydrate()
+        IngestHydrator(self._graph, self._sub_uuid).hydrate()
         return TestAction(self._graph, self._test_path, False).run()
 
 
@@ -73,30 +73,30 @@ class ValidationListener(ConsumerMixin):
 
     def handle_message(self, message):
         payload = json.loads(message.payload)
-        subid = payload['documentUuid']
+        sub_uuid = payload['documentUuid']
         
         if(payload["documentType"] != "submissionenvelope"):
-            self._logger.error(f"Cannot process document since is not a submission envelope. UUID: f{subid}")
+            self._logger.error(f"Cannot process document since is not a submission envelope. UUID: f{sub_uuid}")
             message.ack()
             return
 
-        self._logger.info(f"received validation request for {subid}")
+        self._logger.info(f"received validation request for {sub_uuid}")
 
-        submission = self._ingest_api.get_submission_by_uuid(subid)
+        submission = self._ingest_api.get_submission_by_uuid(sub_uuid)
         submission_url = submission["_links"]["self"]["href"]
 
         try:
             if submission["graphValidationState"] == "Validating":
-                 self._logger.error(f"Cannot perform validation on submission {subid} as it is already validating.")
+                 self._logger.error(f"Cannot perform validation on submission {sub_uuid} as it is already validating.")
                  message.ack()
                  return
             
             self._ingest_api.put(f'{submission_url}/graphValidatingEvent', data=None)
 
-            validation_result = ValidationHandler(subid, self._graph, self._test_path).run()
+            validation_result = ValidationHandler(sub_uuid, self._graph, self._test_path).run()
 
             if validation_result is not None:   
-                self._logger.info(f"validation finished for {subid}")
+                self._logger.info(f"validation finished for {sub_uuid}")
 
                 if validation_result["valid"]:
                     self._ingest_api.put(f'{submission_url}/graphValidEvent', data=None)
@@ -107,7 +107,7 @@ class ValidationListener(ConsumerMixin):
                         for entity in failure['affectedEntities']:
                             self.__patch_entity(failure['message'], entity['types'][0], entity['uuid'])
 
-                self._logger.info(f'Finished validating {subid}.    ')
+                self._logger.info(f'Finished validating {sub_uuid}.    ')
                 message.ack()
         except Exception as e:
             self._logger.error(f"Failed with error {e}.")
