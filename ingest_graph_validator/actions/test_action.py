@@ -50,7 +50,7 @@ class TestAction:
 
                     affected_entities.append({
                         "uuid": entity.get('uuid', 'unset'),
-                        "types": labels
+                        "link": entity.get('self_link', 'unset')
                     })
 
                 failures.append({
