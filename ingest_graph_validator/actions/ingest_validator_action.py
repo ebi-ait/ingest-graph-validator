@@ -56,20 +56,14 @@ class ValidationListener(ConsumerMixin):
     def get_consumers(self, Consumer, channel):
         return [Consumer(queues=self.validation_queue, accept=["application/json;charset=UTF-8", "json"], on_message=self.handle_message, prefetch_count=10)]
 
-    def __patch_entity(self, message, schema_type, uuid):
-        if schema_type == "process":
-            entity_type = "processes"
-        else:
-            entity_type = f'{schema_type}s'
-
-        entity = self._ingest_api.get_entity_by_uuid(entity_type, uuid)
-        entity_url = entity["_links"]["self"]["href"]
+    def __patch_entity(self, message, entity_link):
+        entity = self._ingest_api.get(entity_link).json()
         errors = entity["graphValidationErrors"] or []
         errors.append(message)
         patch = {
             "graphValidationErrors": errors
         }
-        self._ingest_api.patch(entity_url, patch)
+        self._ingest_api.patch(entity_link, patch)
 
     def handle_message(self, message):
         payload = json.loads(message.payload)
@@ -105,7 +99,7 @@ class ValidationListener(ConsumerMixin):
 
                     for failure in validation_result["failures"]:
                         for entity in failure['affectedEntities']:
-                            self.__patch_entity(failure['message'], entity['types'][0], entity['uuid'])
+                            self.__patch_entity(failure['message'], entity['link'])
 
                 self._logger.info(f'Finished validating {sub_uuid}.    ')
                 message.ack()
