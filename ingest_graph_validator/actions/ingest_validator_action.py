@@ -65,25 +65,11 @@ class ValidationListener(ConsumerMixin):
         }
         self._ingest_api.patch(entity_link, patch)
 
-    def handle_message(self, message):
-        payload = json.loads(message.payload)
-        sub_uuid = payload['documentUuid']
-        
-        if(payload["documentType"] != "submissionenvelope"):
-            self._logger.error(f"Cannot process document since is not a submission envelope. UUID: f{sub_uuid}")
-            message.ack()
-            return
-
-        self._logger.info(f"received validation request for {sub_uuid}")
-
-        submission = self._ingest_api.get_submission_by_uuid(sub_uuid)
-        submission_url = submission["_links"]["self"]["href"]
-
+    def __attempt_validation(self, submission, sub_uuid):
         try:
+            submission_url = submission["_links"]["self"]["href"]
             if submission["graphValidationState"] == "Validating":
-                 self._logger.error(f"Cannot perform validation on submission {sub_uuid} as it is already validating.")
-                 message.ack()
-                 return
+                raise RuntimeError(f"Cannot perform validation on submission {sub_uuid} as it is already validating.")
             
             self._ingest_api.put(f'{submission_url}/graphValidatingEvent', data=None)
 
@@ -101,16 +87,29 @@ class ValidationListener(ConsumerMixin):
                         for entity in failure['affectedEntities']:
                             self.__patch_entity(failure['message'], entity['link'])
 
-                self._logger.info(f'Finished validating {sub_uuid}.    ')
-                message.ack()
+                self._logger.info(f'Finished validating {sub_uuid}.')
         except Exception as e:
-            self._logger.error(f"Failed with error {e}.")
+            self._logger.error(f"Failed validation with error {e}.")
             self._logger.info("Reverting submission graphValidationState to Pending")
             self._ingest_api.put(f'{submission_url}/graphPendingEvent', data=None)
-            message.ack()
 
-        self._graph.delete_all()
+    def handle_message(self, message):
+        try:
+            payload = json.loads(message.payload)
+            
+            if(payload["documentType"] != "submissionenvelope"):
+                    raise RuntimeError(f"Cannot process document since is not a submission envelope. UUID: f{sub_uuid}")
+    
+            sub_uuid = payload['documentUuid']
+            self._logger.info(f"received validation request for {sub_uuid}")
 
+            submission = self._ingest_api.get_submission_by_uuid(sub_uuid)
+            self.__attempt_validation(submission, sub_uuid)
+            self._graph.delete_all()
+        except Exception as e:
+            self._logger.error(f"Failed handling with error {e}.")
+
+        message.ack()
 
 class IngestValidatorAction:
 
