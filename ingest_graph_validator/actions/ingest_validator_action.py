@@ -93,6 +93,8 @@ class ValidationListener(ConsumerMixin):
             self._logger.info("Reverting submission graphValidationState to Pending")
             self._ingest_api.put(f'{submission_url}/graphPendingEvent', data=None)
 
+        self._graph.delete_all()
+
     def handle_message(self, message):
         try:
             payload = json.loads(message.payload)
@@ -105,7 +107,6 @@ class ValidationListener(ConsumerMixin):
 
             submission = self._ingest_api.get_submission_by_uuid(sub_uuid)
             self.__attempt_validation(submission, sub_uuid)
-            self._graph.delete_all()
         except Exception as e:
             self._logger.error(f"Failed handling with error {e}.")
 
