@@ -11,5 +11,6 @@ Every node must have at least one connection.
 ----
 MATCH (n)
 WHERE NOT (n)-[]-()
+AND NOT (n:supplementary_file)
 RETURN n, "Entity does not have linkings with any other entity", labels(n)
 ----
