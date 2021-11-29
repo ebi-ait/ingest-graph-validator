@@ -11,7 +11,7 @@ contain a repeated type of read within the same lane (e.g. only 1 R1 in library_
 [source,cypher]
 ----
 MATCH path = (c:cell_suspension)-[]-(p:process)-[]-(s:sequence_file)
-WITH p.`process_core.process_id` + "_" + s.lane_index + "_" + s.`read_index` as uniq_process_lane_type, s as sequencefile, p as p
+WITH p.`process_core.process_id` + "_" + COALESCE(s.lane_index, "null") + "_" + s.`read_index` as uniq_process_lane_type, s as sequencefile, p as p
 WITH distinct(uniq_process_lane_type) as uniq_files, count(distinct(sequencefile)) as x, p as p
 WHERE x > 1
 RETURN p, "Incorrect number of files per set of fastq files", labels(p)
