@@ -64,6 +64,7 @@ class ValidationListener(ConsumerMixin):
             "graphValidationErrors": errors
         }
         self._ingest_api.patch(entity_link, patch)
+        self._ingest_api.put(entity_link + '/invalidEvent', data=None)
 
     def __attempt_validation(self, submission, sub_uuid):
         try:
