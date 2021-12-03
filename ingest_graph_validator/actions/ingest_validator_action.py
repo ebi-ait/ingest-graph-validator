@@ -83,13 +83,13 @@ class ValidationListener(ConsumerMixin):
                     for failure in validation_result["failures"]:
                         for entity in failure['affectedEntities']:
                             self.__patch_entity(failure['message'], entity['link'])
-
-                self._ingest_api.put(f'{submission_url}/graphValidatedEvent', data=None)
+                    self._ingest_api.put(f'{submission_url}/graphInvalidEvent', data=None)
+                else:
+                    self._ingest_api.put(f'{submission_url}/graphValidEvent', data=None)
                 self._logger.info(f'Finished validating {sub_uuid}.')
         except Exception as e:
             self._logger.error(f"Failed validation with error {e}.")
-            self._logger.info("Reverting submission state to graph requested")
-            self._ingest_api.put(f'{submission_url}/graphValidatonRequestedEvent', data=None)
+            # TODO add endpoint to restore submission to metadata valid and log error
 
         self._graph.delete_all()
 
