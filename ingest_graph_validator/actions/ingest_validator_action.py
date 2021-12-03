@@ -69,7 +69,7 @@ class ValidationListener(ConsumerMixin):
     def __attempt_validation(self, submission, sub_uuid):
         try:
             submission_url = submission["_links"]["self"]["href"]
-            if submission["graphValidationState"] == "Validating":
+            if submission["submissionState"] == "Graph validating":
                 raise RuntimeError(f"Cannot perform validation on submission {sub_uuid} as it is already validating.")
             
             self._ingest_api.put(f'{submission_url}/graphValidatingEvent', data=None)
@@ -79,20 +79,17 @@ class ValidationListener(ConsumerMixin):
             if validation_result is not None:   
                 self._logger.info(f"validation finished for {sub_uuid}")
 
-                if validation_result["valid"]:
-                    self._ingest_api.put(f'{submission_url}/graphValidEvent', data=None)
-                else:
-                    self._ingest_api.put(f'{submission_url}/graphInvalidEvent', data=None)
-
+                if not validation_result["valid"]:
                     for failure in validation_result["failures"]:
                         for entity in failure['affectedEntities']:
                             self.__patch_entity(failure['message'], entity['link'])
 
+                self._ingest_api.put(f'{submission_url}/graphValidatedEvent', data=None)
                 self._logger.info(f'Finished validating {sub_uuid}.')
         except Exception as e:
             self._logger.error(f"Failed validation with error {e}.")
-            self._logger.info("Reverting submission graphValidationState to Pending")
-            self._ingest_api.put(f'{submission_url}/graphPendingEvent', data=None)
+            self._logger.info("Reverting submission state to graph requested")
+            self._ingest_api.put(f'{submission_url}/graphValidatonRequestedEvent', data=None)
 
         self._graph.delete_all()
 
