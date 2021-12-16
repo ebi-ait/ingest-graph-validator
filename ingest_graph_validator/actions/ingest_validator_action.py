@@ -64,7 +64,6 @@ class ValidationListener(ConsumerMixin):
             "graphValidationErrors": errors
         }
         self._ingest_api.patch(entity_link, patch)
-        self._ingest_api.put(entity_link + '/invalidEvent', data=None)
 
     def __attempt_validation(self, submission, sub_uuid):
         try:
@@ -83,7 +82,8 @@ class ValidationListener(ConsumerMixin):
                     for failure in validation_result["failures"]:
                         for entity in failure['affectedEntities']:
                             self.__patch_entity(failure['message'], entity['link'])
-                    self._ingest_api.put(f'{submission_url}/graphInvalidEvent', data=None)
+                    
+                    self._ingest_api.put(f'{submission_url}/graphInvalidEvent', data=None)  
                 else:
                     self._ingest_api.put(f'{submission_url}/graphValidEvent', data=None)
                 self._logger.info(f'Finished validating {sub_uuid}.')
