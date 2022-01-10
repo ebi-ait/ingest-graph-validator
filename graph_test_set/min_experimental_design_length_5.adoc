@@ -10,23 +10,7 @@ There should be a minimum of 5 modes from a donor to a data file:
 #### The test
 [source,cypher]
 ----
-MATCH p = (d:donor_organism)-[r:DUMMY_EXPERIMENTAL_DESIGN *]->(f:file)
+MATCH p = (d:donor_organism)-[r:DUMMY_EXPERIMENTAL_DESIGN]->(f:sequence_file)
 WHERE length(p) < 5
-RETURN p
+RETURN d, "The experimental design needs at least one biomaterial between the donor and the sequence file", labels(d)
 ----
-
-
-[NOTE]
-.Informaton about Graph Validation Tests
-========================================
-* Each cypher snippet in `.adoc` files in the specified folder will run.
-* The cypher snippet should be contained between these specific lines:
-```
-#### The test
-[source,cyper]
-----
-<TEST HERE>
-----
-```
-* The test passes if the cypher query returns no results.
-========================================

@@ -52,7 +52,7 @@ def main():
     template = read_template()
     index = create_index()
 
-    new_template = template.replace('{{TESTS_INDEX}}', index).replace('{{LAST_UPDATED}}', datetime.now().date())
+    new_template = template.replace('{{TESTS_INDEX}}', index).replace('{{LAST_UPDATED}}', str(datetime.now().date()))
     with open("graph_test_set/README.md", "w") as readme:
         readme.write(new_template)
 

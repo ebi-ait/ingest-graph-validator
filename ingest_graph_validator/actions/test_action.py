@@ -28,7 +28,7 @@ class TestAction:
         self._logger.info("running tests")
 
         is_valid = True
-        total_result = {}
+        failures = []
 
         for test_name, test_query in self._test_queries.items():
             self._logger.debug(f"running test [{test_name}]")
@@ -38,7 +38,26 @@ class TestAction:
                 is_valid = False
                 self._logger.error(f"test [{test_name}] failed: non-empty result.")
                 self._logger.error(f"result: {result}")
-                total_result[test_name] = result
+
+                affected_entities = []
+                message = None
+
+                for node in result:
+                    entity, msg, labels = node.values()
+
+                    if not message:
+                        message = msg
+
+                    affected_entities.append({
+                        "uuid": entity.get('uuid', 'unset'),
+                        "link": entity.get('self_link', 'unset')
+                    })
+
+                failures.append({
+                    "test": test_name,
+                    "message": message,
+                    "affectedEntities": affected_entities
+                })
 
                 if self._exit_on_failure is True:
                     self._logger.info("execution terminated")
@@ -46,10 +65,8 @@ class TestAction:
 
         
         self._logger.info("All tests finished")
-        error_message = f"Failed test names: {', '.join(total_result.keys())}"
 
         return {
-            "message": error_message,
+            "failures": failures,
             "valid": is_valid
         }
-

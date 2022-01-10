@@ -11,21 +11,5 @@ of the _experimental design_.
 ----
 MATCH (d:donor_organism)<-[r]-()
 WHERE NOT type(r) = 'INPUT_BIOMATERIALS'
-RETURN d
+RETURN d, "Donors can't be derived from any other entity", labels(d)
 ----
-
-
-[NOTE]
-.Informaton about Graph Validation Tests
-========================================
-* Each cypher snippet in `.adoc` files in the specified folder will run.
-* The cypher snippet should be contained between these specific lines:
-```
-#### The test
-[source,cyper]
-----
-<TEST HERE>
-----
-```
-* The test passes if the cypher query returns no results.
-========================================

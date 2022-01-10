@@ -74,7 +74,7 @@ class IngestHydrator(Hydrator):
 
         for entity_uuid, entity in self._entities.items():
             node_id = entity['node_id']
-            nodes[entity_uuid] = Node(*entity['labels'], **entity['properties'], id=node_id)
+            nodes[entity_uuid] = Node(*entity['labels'], **entity['properties'], uuid=entity['uuid'], self_link=entity['links']['self']['href'], id=node_id)
 
             self._logger.debug(f"({node_id})")
 
