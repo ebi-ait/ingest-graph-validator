@@ -10,8 +10,10 @@ Processes using smartseq2 library preparation protocols have 2 or 3 files linked
 [source,cypher]
 ----
 MATCH (r:library_preparation_protocol)<-[:PROTOCOLS]-(p:process)<-[d]-(f:sequence_file)
-WITH r, p, COUNT(d) as num_files
+OPTIONAL MATCH (p)-[]-(s:sequencing_protocol)
+WITH r, p, s, COUNT(d) as num_files
 WHERE r.`library_construction_method.ontology` = "EFO:0008931" // SmartSeq2
+AND s.`paired_end`
 AND NOT num_files IN [2, 3]
 RETURN p, "Smart-Seq2 protocols should contain between 2 and 3 files", labels(p)
 ----
