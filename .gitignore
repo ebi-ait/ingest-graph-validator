@@ -164,4 +164,6 @@ fabric.properties
 
 .idea
 
+.DS_Store
+
 _secrets
