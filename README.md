@@ -1,5 +1,3 @@
-[![PyPI](https://img.shields.io/pypi/v/ingest-graph-validator.svg)](https://pypi.org/project/ingest-graph-validator/)
-
 # HCA Ingest Service Graph Validation Suite
 
 ## What is this useful for in the scope of the HCA:
