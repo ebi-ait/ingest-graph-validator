@@ -39,6 +39,7 @@ The Graph Validator Suite requires docker running in the host machine.
 git clone git@github.com:ebi-ait/ingest-graph-validator.git
 cd ingest-graph-validator
 pip install -e .
+pip install -r requirements.txt
 ```
 
 ## Usage
@@ -46,26 +47,37 @@ pip install -e .
 
 1. Ensure Docker is installed and running
 
-1. `docker run -p7687:7687 -p7474:7474 --env NEO4J_AUTH=neo4j/password --env=NEO4J_ACCEPT_LICENSE_AGREEMENT=yes neo4j:3.5.14-enterprise` (in another terminal session or with `-d` (detached) flag)
+2. Create a file for the GCP credentials in your HOME folder: `~/.secrets/gcp_credentials`
+and copy the secrets from AWS Secrets Manager under the following key: `ingest/{ENV}/gcp-credentials.json`.
+Where ENV could be one of the following values:
+   1. `dev` for the dev environment
+   2. `staging` for the staging environment
+   3. `prod` for the production environment
 
-1. `export INGEST_GRAPH_VALIDATOR_INGEST_API_URL=https://api.ingest.archive.data.humancellatlas.org/`
+3. `docker run -p7687:7687 -p7474:7474 --env NEO4J_AUTH=neo4j/password --env=NEO4J_ACCEPT_LICENSE_AGREEMENT=yes neo4j:3.5.14-enterprise` (in another terminal session or with `-d` (detached) flag)
+
+4. `export INGEST_GRAPH_VALIDATOR_INGEST_API_URL=https://api.ingest.archive.data.humancellatlas.org/`
     - If you wish to run the graph validator against a different environment, you can specify the URL to that here (e.g. `http://localhost:8080`)
 
-1. Import a spreadsheet:
+5. Initialize the database backend and enables a frontend visualizer to query the database,
+in http://localhost:7474 by default by executing this in the command line:
+`ingest-graph-validator init`
+
+6. Import a spreadsheet:
     - `ingest-graph-validator hydrate ingest <sub_uuid>` (via ingest)
     - `ingest-graph-validator hydrate xls <spreadsheet filename>` (via a spreadsheet)
 
-1. Go to <http://localhost:7474> in a browser to open the frontend.
+7. Go to <http://localhost:7474> in a browser to open the frontend.
     - Username: neo4j
     - Password: password
 
-1. You can then start writing [cypher queries](https://neo4j.com/graphacademy/online-training/introduction-to-neo4j/) in the input field on top of the web frontend to visualize the graph. For example:
+8. You can then start writing [cypher queries](https://neo4j.com/graphacademy/online-training/introduction-to-neo4j/) in the input field on top of the web frontend to visualize the graph. For example:
 
     ```MATCH p=(n) RETURN p```
 
     Will show the entire graph. Keep in mind this will crash the browser on huge datasets.
 
-1. Run tests
+9. Run tests
     - `ingest-graph-validator action test <path_to_tests>`
     - e.g `ingest-graph-validator action test graph_test_set`
 
