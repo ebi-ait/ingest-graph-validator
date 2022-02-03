@@ -1,12 +1,6 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-"""The setup script."""
-
 from os import path
 
 from setuptools import setup, find_packages
-
 
 # Required packages to install.
 base_dir = path.dirname(__file__)
@@ -16,46 +10,22 @@ setup_requirements = ["pytest-runner", ]
 
 test_requirements = ["pytest>=3", ]
 
-# Description from readme.
-this_directory = path.abspath(path.dirname(__file__))
-with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
-    long_description = f.read()
-
-
 setup(
-    author="Javier Ferrer Gómez",
-    author_email="jferrer@ebi.ac.uk",
+    name="ingest-graph-validator",
+    version="0.1.0",
     python_requires=">=3.6",
-    classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: MIT License",
-        "Natural Language :: English",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-    ],
+    packages=find_packages(include=["ingest_graph_validator", "ingest_graph_validator.*"]),
     description="HCA Ingest Service neo4j graph validator package",
     entry_points={
-        'console_scripts': [
-            "ingest-graph-validator=ingest_graph_validator.ingest_graph_validator:entry_point",
-        ],
+        "console_scripts": [
+            "ingest-graph-validator = ingest_graph_validator.ingest_graph_validator:entry_point"
+        ]
     },
     install_requires=[
-        'hca-ingest @ git+https://github.com/ebi-ait/ingest-client.git@782dd754#egg=hca_ingest',
+        'hca-ingest @ git+https://github.com/ebi-ait/ingest-client.git@7fd3c25#egg=hca_ingest',
         install_requires
     ],
-    license="MIT license",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    include_package_data=True,
-    keywords="ingest-graph-validator",
-    name="ingest-graph-validator",
-    packages=find_packages(include=["ingest_graph_validator", "ingest_graph_validator.*"]),
     setup_requires=setup_requirements,
     test_suite="tests",
-    tests_require=test_requirements,
-    url="https://github.com/ebi-ait/ingest-graph-validator",
-    version="0.7.2",
-    zip_safe=False,
+    tests_require=test_requirements
 )
