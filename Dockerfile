@@ -17,7 +17,6 @@ RUN pip install -r requirements.txt
 
 ADD . /ingest-graph-validator/
 RUN pip install -e .
-RUN pip install -r requirements.txt
 
 ENV INGEST_GRAPH_VALIDATOR_INGEST_API_URL="https://api.ingest.archive.data.humancellatlas.org"
 ENV INGEST_GRAPH_VALIDATOR_GOOGLE_APPLICATION_CREDENTIALS="/.secrets/gcp_credentials"

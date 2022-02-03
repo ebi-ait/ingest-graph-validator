@@ -36,9 +36,6 @@ idna~=2.10
     # via
     #   ingest-graph-validator (setup.py)
     #   requests
-
--e git+https://github.com/ebi-ait/ingest-client.git@7fd3c25#egg=hca_ingest
-
 interchange~=2021.0.4
     # via
     #   ingest-graph-validator (setup.py)
