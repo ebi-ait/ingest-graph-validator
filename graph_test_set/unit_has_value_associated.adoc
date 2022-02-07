@@ -10,8 +10,8 @@ Ensure that any unit-related field has a value associated with the unit, otherwi
 ----
 MATCH (b)
 WITH b, keys(b) as fields
-WHERE any(field IN fields WHERE field CONTAINS "unit")
-WITH b, [field IN fields WHERE field contains "unit"] as unit_fields, [field IN fields WHERE NOT field contains "unit"] as no_unit_fields
-WHERE NOT ANY(u in unit_fields WHERE any(n in no_unit_fields where u contains n))
-return b, "Missing unit values", labels(b)
+WHERE ANY(field IN fields WHERE field CONTAINS "unit")
+WITH b, [field IN fields WHERE field CONTAINS "unit"] AS unit_fields, [field IN fields WHERE NOT field contains "unit"] AS no_unit_fields
+WHERE NOT ALL(u IN unit_fields WHERE ANY(n IN no_unit_fields WHERE u CONTAINS n))
+RETURN b, "Missing unit values", labels(b)
 ----
