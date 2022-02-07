@@ -1,0 +1,17 @@
+## Test: Unit has value associated
+
+#### Test description
+
+Ensure that any unit-related field has a value associated with the unit, otherwise throw an error
+
+
+#### The test
+[source,cypher]
+----
+MATCH (b)
+WITH b, keys(b) as fields
+WHERE any(field IN fields WHERE field CONTAINS "unit")
+WITH b, [field IN fields WHERE field contains "unit"] as unit_fields, [field IN fields WHERE NOT field contains "unit"] as no_unit_fields
+WHERE NOT ANY(u in unit_fields WHERE any(n in no_unit_fields where u contains n))
+return b, "Missing unit values", labels(b)
+----
