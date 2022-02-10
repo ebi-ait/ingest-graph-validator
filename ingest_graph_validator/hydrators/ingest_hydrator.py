@@ -12,7 +12,7 @@ from ..utils import benchmark
 from .hydrator import Hydrator
 
 
-# Example subid for a small submission (wong retina): 668791ed-deec-4470-b23a-9b80fd133e1c
+# Example sub_uuid for a small submission (wong retina): 668791ed-deec-4470-b23a-9b80fd133e1c
 
 
 class IngestHydrator(Hydrator):
@@ -22,23 +22,32 @@ class IngestHydrator(Hydrator):
     Enables importing of HCA Ingest Service submissions by specifying a Submission ID.
     """
 
-    def __init__(self, graph, subid):
+    def __init__(self, graph, submission_uuid):
         super().__init__(graph)
 
-        self._subid = subid
-
-        self._logger.info(f"started ingest hydrator for subid [{self._subid}]")
+        self._logger.info(f"Started ingest hydrator for for submission [{submission_uuid}]")
 
         self._ingest_api = IngestApi(Config['INGEST_API'])
-        self._entities = self.fetch_submission(subid)
+
+        project_url = self._ingest_api.get_submission_by_uuid(submission_uuid)['_links']['relatedProjects']['href']
+        project = self._ingest_api.get(project_url).json()['_embedded']['projects'][0]
+
+        self._logger.info(f"Found project for submission {project['uuid']['uuid']}")
+
+        self._entities = {}
+        for submission in self.fetch_submissions_in_project(project):
+            self._logger.info(f"Found submission for project with uuid {submission['uuid']['uuid']}")
+            for entity in self.build_entities_from_submission(submission):
+                self._entities[entity['uuid']] = entity
+
         self._nodes = self.get_nodes()
         self._edges = self.get_edges()
 
-    def fetch_submission(self, subid):
-        self._logger.debug("fetching ingest submission")
+    def fetch_submissions_in_project(self, project: dict) -> [dict]:
+        self._logger.debug(f"Fetching submissions for project {project['uuid']['uuid']}")
+        return self._ingest_api.get(project['_links']['submissionEnvelopes']['href']).json()['_embedded']['submissionEnvelopes']
 
-        entities = {}
-        fetch_url = f"{Config['INGEST_API']}/submissionEnvelopes/search/findByUuidUuid?uuid={subid}"
+    def build_entities_from_submission(self, submission: dict):
         id_field_map = {
             'biomaterials': "biomaterial_core.biomaterial_id",
             'files': "file_core.file_name",
@@ -48,7 +57,7 @@ class IngestHydrator(Hydrator):
         }
 
         for entity_type in ["biomaterials", "files", "processes", "projects", "protocols"]:
-            for entity in self._ingest_api.get_entities(fetch_url, entity_type):
+            for entity in self._ingest_api.get_entities(submission['_links']['self']['href'], entity_type):
                 properties = flatten(entity['content'])
 
                 new_entity = {
@@ -62,9 +71,7 @@ class IngestHydrator(Hydrator):
                 concrete_type = new_entity['properties']['describedBy'].rsplit('/', 1)[1]
                 new_entity['labels'].append(concrete_type)
 
-                entities[entity['uuid']['uuid']] = new_entity
-
-        return entities
+                yield new_entity
 
     @benchmark
     def get_nodes(self):

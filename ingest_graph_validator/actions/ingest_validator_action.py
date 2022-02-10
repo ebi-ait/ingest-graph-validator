@@ -2,25 +2,22 @@
 
 """Runs graph validation tests in the specified folder."""
 
-import logging, json
+import json
+import logging
 
-from kombu import Connection, Exchange, Queue
-from kombu.mixins import ConsumerMixin
+from ingest.api.ingestapi import IngestApi
 from ingest.utils.s2s_token_client import S2STokenClient, ServiceCredential
 from ingest.utils.token_manager import TokenManager
-from ingest.api.ingestapi import IngestApi
-
-from ..hydrators.ingest_hydrator import IngestHydrator
-from .test_action import TestAction
-
+from kombu import Connection, Exchange, Queue
+from kombu.mixins import ConsumerMixin
 
 from .common import load_test_queries
-
+from .test_action import TestAction
 from ..config import Config
+from ..hydrators.ingest_hydrator import IngestHydrator
 
 
-class ValidationHandler():
-
+class ValidationHandler:
     def __init__(self, sub_uuid, graph, test_path):
         self._sub_uuid = sub_uuid
         self._graph = graph
@@ -31,16 +28,16 @@ class ValidationHandler():
         return TestAction(self._graph, self._test_path, False).run()
 
 
-
 class ValidationListener(ConsumerMixin):
-
     def __init__(self, connection, validation_queue, graph, test_path):
         self.connection = connection
         self.validation_queue = validation_queue
         self._graph = graph
         self._test_path = test_path
 
-        if Config["INGEST_API"] == "http://localhost:8080" or not (Config["GOOGLE_APPLICATION_CREDENTIALS"] and Config["INGEST_JWT_AUDIENCE"]):
+        if Config["INGEST_API"] == "http://localhost:8080" or not (
+            Config["GOOGLE_APPLICATION_CREDENTIALS"] and Config["INGEST_JWT_AUDIENCE"]
+        ):
             self._ingest_api = IngestApi(Config['INGEST_API'])
         else:
             s2s_token_client = S2STokenClient(
@@ -50,11 +47,11 @@ class ValidationListener(ConsumerMixin):
             token_manager = TokenManager(s2s_token_client)
             self._ingest_api = IngestApi(Config['INGEST_API'], token_manager=token_manager)
 
-
         self._logger = logging.getLogger(__name__)
 
-    def get_consumers(self, Consumer, channel):
-        return [Consumer(queues=self.validation_queue, accept=["application/json;charset=UTF-8", "json"], on_message=self.handle_message, prefetch_count=10)]
+    def get_consumers(self, consumer, channel):
+        return [consumer(queues=self.validation_queue, accept=["application/json;charset=UTF-8", "json"],
+                         on_message=self.handle_message, prefetch_count=10)]
 
     def __patch_entity(self, message, entity_link):
         entity = self._ingest_api.get(entity_link).json()
@@ -70,20 +67,20 @@ class ValidationListener(ConsumerMixin):
             submission_url = submission["_links"]["self"]["href"]
             if submission["submissionState"] == "Graph validating":
                 raise RuntimeError(f"Cannot perform validation on submission {sub_uuid} as it is already validating.")
-            
+
             self._ingest_api.put(f'{submission_url}/graphValidatingEvent', data=None)
 
             validation_result = ValidationHandler(sub_uuid, self._graph, self._test_path).run()
 
-            if validation_result is not None:   
+            if validation_result is not None:
                 self._logger.info(f"validation finished for {sub_uuid}")
 
                 if not validation_result["valid"]:
                     for failure in validation_result["failures"]:
                         for entity in failure['affectedEntities']:
                             self.__patch_entity(failure['message'], entity['link'])
-                    
-                    self._ingest_api.put(f'{submission_url}/graphInvalidEvent', data=None)  
+
+                    self._ingest_api.put(f'{submission_url}/graphInvalidEvent', data=None)
                 else:
                     self._ingest_api.put(f'{submission_url}/graphValidEvent', data=None)
                 self._logger.info(f'Finished validating {sub_uuid}.')
@@ -96,11 +93,11 @@ class ValidationListener(ConsumerMixin):
     def handle_message(self, message):
         try:
             payload = json.loads(message.payload)
-            
-            if(payload["documentType"] != "submissionenvelope"):
-                    raise RuntimeError(f"Cannot process document since is not a submission envelope. UUID: f{sub_uuid}")
-    
             sub_uuid = payload['documentUuid']
+
+            if payload["documentType"] != "submissionenvelope":
+                raise RuntimeError(f"Cannot process document since is not a submission envelope. UUID: f{sub_uuid}")
+
             self._logger.info(f"received validation request for {sub_uuid}")
 
             submission = self._ingest_api.get_submission_by_uuid(sub_uuid)
@@ -110,8 +107,8 @@ class ValidationListener(ConsumerMixin):
 
         message.ack()
 
-class IngestValidatorAction:
 
+class IngestValidatorAction:
     def __init__(self, graph, test_path, connection, exchange_name, queue_name, routing_key):
         self._graph = graph
         self._test_path = test_path
