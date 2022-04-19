@@ -4,6 +4,7 @@
 
 import json
 import logging
+import time
 
 from ingest.api.ingestapi import IngestApi
 from ingest.utils.s2s_token_client import S2STokenClient, ServiceCredential
@@ -77,6 +78,11 @@ class ValidationListener(ConsumerMixin):
 
                 if not validation_result["valid"]:
                     self._ingest_api.put(f'{submission_url}/graphInvalidEvent', data=None)
+
+                    # Wait for state tracker to update core
+                    # This is bad and highlights design issues.
+                    # It could be resolved by removing the state tracker entirely
+                    time.sleep(5)
 
                     for failure in validation_result["failures"]:
                         for entity in failure['affectedEntities']:
