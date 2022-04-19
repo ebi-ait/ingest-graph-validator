@@ -6,6 +6,7 @@ import json
 import logging
 import time
 
+import requests.exceptions
 from ingest.api.ingestapi import IngestApi
 from ingest.utils.s2s_token_client import S2STokenClient, ServiceCredential
 from ingest.utils.token_manager import TokenManager
@@ -79,14 +80,21 @@ class ValidationListener(ConsumerMixin):
                 if not validation_result["valid"]:
                     self._ingest_api.put(f'{submission_url}/graphInvalidEvent', data=None)
 
-                    # Wait for state tracker to update core
-                    # This is bad and highlights design issues.
-                    # It could be resolved by removing the state tracker entirely
-                    time.sleep(5)
+                    retries = 0
+                    while True:
+                        try:
+                            time.sleep(0.5)
+                            retries += 1
+                            for failure in validation_result["failures"]:
+                                for entity in failure['affectedEntities']:
+                                    self.__patch_entity(failure['message'], entity['link'])
+                            break
 
-                    for failure in validation_result["failures"]:
-                        for entity in failure['affectedEntities']:
-                            self.__patch_entity(failure['message'], entity['link'])
+                        except requests.exceptions.HTTPError as e:
+                            self._logger.info("Unable to patch entities right now. Probably since the submission "
+                                              "state hasn't been updated yet. Retrying...")
+                            if retries > 10:
+                                raise Exception(e)
                 else:
                     self._ingest_api.put(f'{submission_url}/graphValidEvent', data=None)
                 self._logger.info(f'Finished validating {sub_uuid}.')
