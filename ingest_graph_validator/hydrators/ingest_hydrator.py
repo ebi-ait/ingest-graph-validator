@@ -2,14 +2,15 @@
 
 """Ingest Service Submission hydrator."""
 
-from py2neo import Node, Relationship
+import time
 
 from ingest.api.ingestapi import IngestApi
+from py2neo import Node, Relationship
 
 from .common import flatten, convert_to_macrocase
+from .hydrator import Hydrator
 from ..config import Config
 from ..utils import benchmark
-from .hydrator import Hydrator
 
 
 # Example sub_uuid for a small submission (wong retina): 668791ed-deec-4470-b23a-9b80fd133e1c
@@ -70,6 +71,8 @@ class IngestHydrator(Hydrator):
 
                 concrete_type = new_entity['properties']['describedBy'].rsplit('/', 1)[1]
                 new_entity['labels'].append(concrete_type)
+
+                time.sleep(0.3)  # rate limit to stop overloading core
 
                 yield new_entity
 

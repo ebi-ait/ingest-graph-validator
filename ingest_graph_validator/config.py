@@ -8,7 +8,7 @@ Defaults = {
     'LOG_LEVEL': "INFO",
     'NEO4J_BOLT_PORT': 7687,
     'NEO4J_FRONTEND_PORT': 7474,
-    'NEO4J_DB_URL': "localhost",
+    'NEO4J_DB_URL': "bolt://localhost",
     'NEO4J_DB_USERNAME': "neo4j",
     'NEO4J_DB_PASSWORD': "password",
     'INGEST_API': "https://api.ingest.archive.data.humancellatlas.org",
