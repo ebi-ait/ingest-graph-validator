@@ -97,6 +97,36 @@ The above command runs the listener for the `graph_test_set`
     - Run the UI locally and trigger through the submission page
     - Or `curl -X POST http://localhost:8080/submissionEnvelopes/<submission_id>/validateGraph`
 
+### Graph Validator Architecture within Ingest
+```mermaid
+sequenceDiagram
+
+    participant UI
+    participant c as "ingest-core"
+    participant gv as "ingest-graph-validator"
+    participant q as RabbitMQ
+    participant st as "ingest-state-tracking"
+
+    gv->>q: Listen to queue
+    UI->>c: PUT /submissionEnvelopes/{id}/requestGraphValidation
+    c->>st: Request change of state to GRAPH_VALIDATION_REQUESTED
+    activate st
+    st-->>c: Commit change of state to GRAPH_VALIDATION_REQUESTED
+    c->>q: Add graph validation message to queue
+    q->>gv: Pick up message from queue
+    activate gv
+    gv->>c: PUT /submissionEnvelopes/{id}requestGraphValidating
+    c->>st: Request change of state to GRAPH_VALIDATING
+    activate st
+    st-->>c: Commit change of state to GRAPH_VALIDATING
+    note left of gv: Begin graph validation
+    gv->>c: PATCH /{entity_type}/{id} update graphValidationErrors on each entity
+    gv->>c: PUT /submissionEnvelopes/{id}/requestGraphValid or /submissionEnvelopes/{id}/requestGraphInvalid
+    c->>st: Request change of state to GRAPH_VALID or GRAPH_INVALID
+    activate st
+    st-->>c: Commit change of state to GRAPH_VALID or GRAPH_INVALID
+```
+
 
 ## More help
 
