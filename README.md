@@ -95,7 +95,7 @@ The above command runs the listener for the `graph_test_set`
 5. `ingest-graph-validator action ingest-validator graph_test_set`
 6. Trigger graph validation via:
     - Run the UI locally and trigger through the submission page
-    - Or `curl -X POST http://localhost:8080/submissionEnvelopes/<submission_id>/validateGraph`
+    - Or `curl -X PUT http://localhost:8080/submissionEnvelopes/<submission_id>/graphValidationRequestedEvent `
 
 ### Graph Validator Architecture within Ingest
 ```mermaid
