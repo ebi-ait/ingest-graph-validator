@@ -108,7 +108,7 @@ sequenceDiagram
     participant st as "ingest-state-tracking"
 
     gv->>q: Listen to queue
-    UI->>c: PUT /submissionEnvelopes/{id}/requestGraphValidation
+    UI->>c: PUT /submissionEnvelopes/{id}/graphValidationRequestedEvent
     c->>st: Request change of state to GRAPH_VALIDATION_REQUESTED
     activate st
     st-->>c: Commit change of state to GRAPH_VALIDATION_REQUESTED
