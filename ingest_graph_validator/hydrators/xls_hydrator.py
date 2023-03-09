@@ -27,7 +27,10 @@ class XlsHydrator(Hydrator):
 
         self._logger.info(f"started xls hydrator for file [{self._xls_filename}]")
 
-        self._entity_map, _ = self.import_spreadsheet(xls_filename)
+        self._entity_map, error_message = self.import_spreadsheet(xls_filename)
+        if not self._entity_map: 
+            print(error_message)
+        
         self._nodes = self.get_nodes()
         self._edges = self.get_edges()
 
