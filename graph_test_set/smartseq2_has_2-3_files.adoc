@@ -1,8 +1,8 @@
-## Test: Processes using smartseq2 library preparation protocols have 2 or 3 files linked
+## Test: Processes using smartseq2 library preparation protocols have no more than one sequence file per read type
 
 #### Test description
 
-Processes using smartseq2 library preparation protocols have 2 or 3 files linked.
+Processes using smartseq2 library preparation protocols have no more than one sequence file per read type.
 
 
 
@@ -11,9 +11,9 @@ Processes using smartseq2 library preparation protocols have 2 or 3 files linked
 ----
 MATCH (r:library_preparation_protocol)<-[:PROTOCOLS]-(p:process)<-[d]-(f:sequence_file)
 OPTIONAL MATCH (p)-[]-(s:sequencing_protocol)
-WITH r, p, s, COUNT(d) as num_files
+WITH r, p, s, COUNT(f.`read_index`) as num_files, COUNT(DISTINCT f.`read_index`) as read_set
 WHERE r.`library_construction_method.ontology` = "EFO:0008931" // SmartSeq2
 AND s.`paired_end`
-AND NOT num_files IN [2, 3]
-RETURN p, "Smart-Seq2 protocols should contain between 2 and 3 files", labels(p)
+AND NOT num_files = read_set
+RETURN p, "Smart-Seq2 process should have at most 1 file per type of read", labels(p)
 ----
