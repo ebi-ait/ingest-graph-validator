@@ -1,0 +1,19 @@
+## Test: Processes using smartseq2 library preparation protocols have 2 to 4 files linked
+
+#### Test description
+
+Processes using smartseq2 library preparation protocols have 2 to 4 files linked.
+
+
+
+#### The test
+[source,cypher]
+----
+MATCH (r:library_preparation_protocol)<-[:PROTOCOLS]-(p:process)<-[d]-(f:sequence_file)
+OPTIONAL MATCH (p)-[]-(s:sequencing_protocol)
+WITH r, p, s, COUNT(d) as num_files
+WHERE r.`library_construction_method.ontology` = "EFO:0008931" // SmartSeq2
+AND s.`paired_end`
+AND NOT num_files IN [2, 4]
+RETURN p, "Smart-Seq2 protocols should contain between 2 and 4 files", labels(p)
+----
