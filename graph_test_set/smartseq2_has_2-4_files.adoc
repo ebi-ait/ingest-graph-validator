@@ -14,6 +14,6 @@ OPTIONAL MATCH (p)-[]-(s:sequencing_protocol)
 WITH r, p, s, COUNT(d) as num_files
 WHERE r.`library_construction_method.ontology` = "EFO:0008931" // SmartSeq2
 AND s.`paired_end`
-AND NOT num_files IN [2, 4]
+AND NOT num_files IN [2,3,4]
 RETURN p, "Smart-Seq2 protocols should contain between 2 and 4 files", labels(p)
 ----
