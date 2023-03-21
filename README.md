@@ -38,6 +38,8 @@ The Graph Validator Suite requires docker running in the host machine.
 ```
 git clone git@github.com:ebi-ait/ingest-graph-validator.git
 cd ingest-graph-validator
+python -mvenv .venv
+source .venv/bin/activate
 pip install -e .
 ```
 
@@ -53,7 +55,10 @@ Where ENV could be one of the following values:
    2. `staging` for the staging environment
    3. `prod` for the production environment
 
-3. `docker run -p7687:7687 -p7474:7474 --env NEO4J_AUTH=neo4j/password --env=NEO4J_ACCEPT_LICENSE_AGREEMENT=yes neo4j:3.5.14-enterprise` (in another terminal session or with `-d` (detached) flag)
+3. run neo4j locally (in another terminal session or with `-d` (detached) flag)
+```bash
+docker run -p7687:7687 -p7474:7474 --env NEO4J_AUTH=neo4j/password --env=NEO4J_ACCEPT_LICENSE_AGREEMENT=yes neo4j:3.5.14-enterprise
+```
 
 4. `export INGEST_GRAPH_VALIDATOR_INGEST_API_URL=https://api.ingest.archive.data.humancellatlas.org/`
     - If you wish to run the graph validator against a different environment, you can specify the URL to that here (e.g. `http://localhost:8080`)
