@@ -32,7 +32,7 @@ et-xmlfile~=1.0.1
     # via
     #   ingest-graph-validator (setup.py)
     #   openpyxl
-hca_ingest
+hca_ingest~=2.8.0
 idna~=2.10
     # via
     #   ingest-graph-validator (setup.py)

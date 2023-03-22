@@ -1,0 +1,10 @@
+.venv/
+_secrets/
+*.egg-info/
+.pytest_cache/
+.eggs/
+.idea/
+.github/
+.githooks/
+neo4j_plugins/
+.env

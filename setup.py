@@ -21,10 +21,6 @@ setup(
             "ingest-graph-validator = ingest_graph_validator.ingest_graph_validator:entry_point"
         ]
     },
-    install_requires=[
-        'hca-ingest @ git+https://github.com/ebi-ait/ingest-client.git@7fd3c25#egg=hca_ingest',
-        install_requires
-    ],
     setup_requires=setup_requirements,
     test_suite="tests",
     tests_require=test_requirements
