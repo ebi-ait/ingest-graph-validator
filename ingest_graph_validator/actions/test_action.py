@@ -4,12 +4,15 @@
 
 import logging
 
+from py2neo import Graph
+
 from .common import load_test_queries
 from ..config import Config
 
+
 class TestAction:
 
-    def __init__(self, graph, test_path, exit_on_failure):
+    def __init__(self, graph:Graph, test_path, exit_on_failure):
         self._graph = graph
         self._test_path = test_path
         self._exit_on_failure = exit_on_failure
@@ -63,7 +66,7 @@ class TestAction:
                     self._logger.info("execution terminated")
                     exit(1)
 
-        
+
         self._logger.info("All tests finished")
 
         return {

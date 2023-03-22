@@ -2,13 +2,12 @@
 
 """Excel spreadsheet hydrator."""
 
-from py2neo import Node, Relationship
+from hca_ingest.api.ingestapi import IngestApi
+from hca_ingest.importer.importer import XlsImporter
+from py2neo import Node, Relationship, Graph
 
-from ingest.api.ingestapi import IngestApi
-from ingest.importer.importer import XlsImporter
-
-from .hydrator import Hydrator
 from .common import flatten, convert_to_macrocase
+from .hydrator import Hydrator
 from ..config import Config
 from ..utils import benchmark
 
@@ -20,14 +19,17 @@ class XlsHydrator(Hydrator):
     Enables importing of HCA Ingest Service Xls Spreadsheets to the graph validator application.
     """
 
-    def __init__(self, graph, xls_filename):
+    def __init__(self, graph:Graph, xls_filename):
         super().__init__(graph)
 
+        self._node_csvs = {}
         self._xls_filename = xls_filename
 
         self._logger.info(f"started xls hydrator for file [{self._xls_filename}]")
 
-        self._entity_map, _ = self.import_spreadsheet(xls_filename)
+        self._entity_map, errors = self.import_spreadsheet(xls_filename)
+        if errors:
+            raise RuntimeError(f'problems importing {xls_filename}: {errors}')
         self._nodes = self.get_nodes()
         self._edges = self.get_edges()
 
@@ -42,7 +44,6 @@ class XlsHydrator(Hydrator):
 
     def get_nodes(self):
         self._logger.debug("importing nodes")
-
         nodes = {}
 
         # We need to fetch all node types inside the entity map.
@@ -53,8 +54,6 @@ class XlsHydrator(Hydrator):
                     labels.append(node.concrete_type)
                 nodes[node_id] = Node(*labels, **flatten(node.content), id=node.id)
 
-                self._logger.debug(f"({node_id})")
-
         self._logger.info(f"imported {len(nodes)} nodes")
 
         return nodes
@@ -63,7 +62,6 @@ class XlsHydrator(Hydrator):
         self._logger.debug("importing edges")
 
         edges = []
-
         for node_type in self._entity_map.entities_dict_by_type.keys():
             for node_id, node in self._entity_map.entities_dict_by_type.get(node_type).items():
                 for edge in node.direct_links:
@@ -71,7 +69,6 @@ class XlsHydrator(Hydrator):
                     end_node = self._nodes[edge['id']]
                     relationship = convert_to_macrocase(edge['relationship'])
                     edges.append(Relationship(start_node, relationship, end_node))
-
                     # Adding additional relationships to the graphs.
                     if relationship == 'INPUT_TO_PROCESSES':
                         edges.append(Relationship(start_node, 'DUMMY_EXPERIMENTAL_DESIGN', end_node))
@@ -79,7 +76,6 @@ class XlsHydrator(Hydrator):
                         edges.append(Relationship(end_node, 'DUMMY_EXPERIMENTAL_DESIGN', start_node))
 
                     self._logger.debug(f"({node_id})-[:{relationship}]->({end_node['id']})")
-
         self._logger.info(f"imported {len(edges)} edges")
 
         return edges
