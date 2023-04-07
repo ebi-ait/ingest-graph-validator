@@ -72,16 +72,17 @@ def entry_point(ctx, log_level, db_url, bolt_port, frontend_port):
     while True:
         try:
             logger.info("Connecting to neo4j...")
-            retries+=1
+            retries += 1
             ctx.obj.graph = Graph(f"{Config['NEO4J_DB_URL']}:{Config['NEO4J_BOLT_PORT']}", user=Config['NEO4J_DB_USERNAME'],
                                 password=Config['NEO4J_DB_PASSWORD'])
             break
-            
+
         except errors.ConnectionUnavailable:
-            logger.info("Couldn't connect to neo4j, retrying...")
-            if retries >= 10:
-                raise Exception("Tried to connect to neo4j more than 10 times. Exiting")
-            
+            max_retries = 10
+            logger.info(f"Couldn't connect to neo4j, retrying ({retries}/{max_retries})...")
+            if retries >= max_retries:
+                raise Exception(f'Tried to connect to neo4j more than {max_retries} times. Exiting')
+
             time.sleep(5)
 
 

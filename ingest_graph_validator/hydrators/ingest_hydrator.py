@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
 """Ingest Service Submission hydrator."""
-
+import logging
 import time
+from importlib import reload
 
-from ingest.api.ingestapi import IngestApi
-from py2neo import Node, Relationship
+from hca_ingest.api.ingestapi import IngestApi
+from py2neo import Node, Relationship, Graph
 
 from .common import flatten, convert_to_macrocase
 from .hydrator import Hydrator
@@ -14,8 +15,6 @@ from ..utils import benchmark
 
 
 # Example sub_uuid for a small submission (wong retina): 668791ed-deec-4470-b23a-9b80fd133e1c
-
-
 class IngestHydrator(Hydrator):
     """
     DCP Ingest Service Submission hydrator class.
@@ -23,9 +22,9 @@ class IngestHydrator(Hydrator):
     Enables importing of HCA Ingest Service submissions by specifying a Submission ID.
     """
 
-    def __init__(self, graph, submission_uuid):
+    def __init__(self, graph:Graph, submission_uuid):
         super().__init__(graph)
-
+        self.ingest_throttle_period = Config['INGEST_THROTTLE_PERIOD']
         self._logger.info(f"Started ingest hydrator for for submission [{submission_uuid}]")
 
         self._ingest_api = IngestApi(Config['INGEST_API'])
@@ -35,19 +34,25 @@ class IngestHydrator(Hydrator):
 
         self._logger.info(f"Found project for submission {project['uuid']['uuid']}")
 
-        self._entities = {}
+        self._entities = []
         for submission in self.fetch_submissions_in_project(project):
-            self._logger.info(f"Found submission for project with uuid {submission['uuid']['uuid']}")
-            for entity in self.build_entities_from_submission(submission):
-                self._entities[entity['uuid']] = entity
+            self.process_submission(submission)
 
         self._nodes = self.get_nodes()
         self._edges = self.get_edges()
 
+    @benchmark
+    def process_submission(self, submission):
+        self._logger.info(f"Found submission for project with uuid {submission['uuid']['uuid']}")
+        for entity in self.build_entities_from_submission(submission):
+            self._entities.append(entity)
+
     def fetch_submissions_in_project(self, project: dict) -> [dict]:
         self._logger.debug(f"Fetching submissions for project {project['uuid']['uuid']}")
-        return self._ingest_api.get(project['_links']['submissionEnvelopes']['href']).json()['_embedded']['submissionEnvelopes']
+        url = project['_links']['submissionEnvelopes']['href']
+        return self._ingest_api.get(url).json()['_embedded']['submissionEnvelopes']
 
+    @benchmark
     def build_entities_from_submission(self, submission: dict):
         id_field_map = {
             'biomaterials': "biomaterial_core.biomaterial_id",
@@ -58,7 +63,13 @@ class IngestHydrator(Hydrator):
         }
 
         for entity_type in ["biomaterials", "files", "processes", "projects", "protocols"]:
-            for entity in self._ingest_api.get_entities(submission['_links']['self']['href'], entity_type):
+            self._logger.info(f"processing entity type {entity_type}")
+            submission_url = self._ingest_api.get_link_from_resource(submission, link_name='self')
+            entity_num = 0
+            for entity in self._ingest_api.get_entities(submission_url, entity_type):
+                if entity_num % self.batch_size == 0:
+                    self._logger.info(f'finished {entity_num} items of type {entity_type}')
+                entity_num = entity_num + 1
                 properties = flatten(entity['content'])
 
                 new_entity = {
@@ -68,25 +79,27 @@ class IngestHydrator(Hydrator):
                     'links': entity['_links'],
                     'uuid': entity['uuid']['uuid'],
                 }
+                self._logger.debug(f"processing {entity_type} node with id {new_entity['node_id']}")
 
                 concrete_type = new_entity['properties']['describedBy'].rsplit('/', 1)[1]
                 new_entity['labels'].append(concrete_type)
 
-                time.sleep(0.3)  # rate limit to stop overloading core
-
                 yield new_entity
+            self._logger.info(f'finished {entity_num} items of type {entity_type}')
 
     @benchmark
     def get_nodes(self):
-        self._logger.debug("importing nodes")
+        self._logger.info("importing nodes")
 
         nodes = {}
 
-        for entity_uuid, entity in self._entities.items():
+        for entity in self._entities:
             node_id = entity['node_id']
-            nodes[entity_uuid] = Node(*entity['labels'], **entity['properties'], uuid=entity['uuid'], self_link=entity['links']['self']['href'], id=node_id)
-
-            self._logger.debug(f"({node_id})")
+            nodes[entity['uuid']] = Node(*entity['labels'],
+                                         **entity['properties'],
+                                         uuid=entity['uuid'],
+                                         self_link=entity['links']['self']['href'],
+                                         id=node_id)
 
         self._logger.info(f"imported {len(nodes)} nodes")
 
@@ -94,9 +107,8 @@ class IngestHydrator(Hydrator):
 
     @benchmark
     def get_edges(self):
-        self._logger.debug("importing edges")
+        self._logger.info("importing edges")
 
-        edges = []
         relationship_map = {
             'projects': "projects",
             'protocols': "protocols",
@@ -109,31 +121,32 @@ class IngestHydrator(Hydrator):
             'derivedFiles': "files",
         }
 
-        for entity_uuid, entity in self._entities.items():
+        entity_num = 0
+        for entity in self._entities:
             for relationship_type in relationship_map.keys():
                 if relationship_type in entity['links']:
-                    relationships = self._ingest_api.get_all(
-                        entity['links'][relationship_type]['href'],
-                        relationship_map[relationship_type]
-                    )
-
+                    url = entity['links'][relationship_type]['href']
+                    entity_type = relationship_map[relationship_type]
+                    relationships = self._ingest_api.get_all(url, entity_type)
                     for end_entity in relationships:
-                        start_node = self._nodes[entity_uuid]
+                        if entity_num % self.batch_size == 0:
+                            self._logger.info(f'get_edges: completed {entity_num} items')
+                        entity_num = entity_num + 1
+                        start_node = self._nodes[entity['uuid']]
                         relationship_name = convert_to_macrocase(relationship_type)
+
                         try:
                             end_node = self._nodes[end_entity['uuid']['uuid']]
-                            edges.append(Relationship(start_node, relationship_name, end_node))
+                            yield Relationship(start_node, relationship_name, end_node)
 
                             # Adding additional relationships to the graphs.
                             if relationship_name == 'INPUT_TO_PROCESSES':
-                                edges.append(Relationship(start_node, 'DUMMY_EXPERIMENTAL_DESIGN', end_node))
+                                yield Relationship(start_node, 'DUMMY_EXPERIMENTAL_DESIGN', end_node)
                             if relationship_name == 'DERIVED_BY_PROCESSES':
-                                edges.append(Relationship(end_node, 'DUMMY_EXPERIMENTAL_DESIGN', start_node))
+                                yield Relationship(end_node, 'DUMMY_EXPERIMENTAL_DESIGN', start_node)
 
                             self._logger.debug(f"({start_node['id']})-[:{relationship_name}]->({end_node['id']})")
                         except KeyError:
                             self._logger.debug(f"Missing end node at a [{start_node['id']}] entity.")
 
-        self._logger.info(f"imported {len(edges)} edges")
-
-        return edges
+        self._logger.info(f"importing edges finished")

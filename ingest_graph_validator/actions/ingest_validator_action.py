@@ -7,9 +7,9 @@ import logging
 import time
 
 import requests.exceptions
-from ingest.api.ingestapi import IngestApi
-from ingest.utils.s2s_token_client import S2STokenClient, ServiceCredential
-from ingest.utils.token_manager import TokenManager
+from hca_ingest.api.ingestapi import IngestApi
+from hca_ingest.utils.s2s_token_client import S2STokenClient, ServiceCredential
+from hca_ingest.utils.token_manager import TokenManager
 from kombu import Connection, Exchange, Queue
 from kombu.mixins import ConsumerMixin
 
