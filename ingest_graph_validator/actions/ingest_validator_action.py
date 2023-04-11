@@ -62,7 +62,7 @@ class ValidationListener(ConsumerMixin):
         patch = {
             "graphValidationErrors": errors
         }
-        self._ingest_api.patch(entity_link, patch)
+        self._ingest_api.patch(entity_link, json=patch)
 
     def __attempt_validation(self, submission, sub_uuid):
         try:
