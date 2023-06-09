@@ -55,7 +55,7 @@ class Hydrator:
     def fill_edges(self, graph, edges):
         tx = self._graph.begin()
         self._logger.info('filling edges')
-        for i, edge in enumerate(list(edges)):
+        for i, edge in enumerate(edges):
             tx = self.maybe_commit_tx(i, tx)
             tx.create(edge)
 
