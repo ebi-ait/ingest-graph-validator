@@ -44,7 +44,7 @@ class IngestHydrator(Hydrator):
     @benchmark
     def process_submission(self, submission):
         self._logger.info(f"Found submission for project with uuid {submission['uuid']['uuid']}")
-        self._entities.extend(self.build_entities_from_submission(submission))
+        self._entities.extend(list(self.build_entities_from_submission(submission)))
 
     def fetch_submissions_in_project(self, project: dict) -> [dict]:
         self._logger.debug(f"Fetching submissions for project {project['uuid']['uuid']}")
@@ -87,12 +87,12 @@ class IngestHydrator(Hydrator):
             self._logger.info(f'finished {entity_num} items of type {entity_type}')
 
     @benchmark
-    def get_nodes(self):
+    def get_nodes(self, entities):
         self._logger.info("importing nodes")
 
         nodes = {}
 
-        for entity in self._entities:
+        for entity in entities:
             node_id = entity['node_id']
             nodes[entity['uuid']] = Node(*entity['labels'],
                                          **entity['properties'],
@@ -105,7 +105,7 @@ class IngestHydrator(Hydrator):
         return nodes
 
     @benchmark
-    def get_edges(self):
+    def get_edges(self, entities):
         self._logger.info("importing edges")
 
         relationship_map = {
@@ -121,7 +121,7 @@ class IngestHydrator(Hydrator):
         }
 
         entity_num = 0
-        for entity in self._entities:
+        for entity in entities:
             for relationship_type in relationship_map.keys():
                 if relationship_type in entity['links']:
                     url = entity['links'][relationship_type]['href']
