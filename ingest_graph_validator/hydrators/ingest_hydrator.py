@@ -32,11 +32,14 @@ class IngestHydrator(Hydrator):
         project_url = self._ingest_api.get_submission_by_uuid(submission_uuid)['_links']['relatedProjects']['href']
         project = self._ingest_api.get(project_url).json()['_embedded']['projects'][0]
 
-        self._logger.info(f"Found project for submission {project['uuid']['uuid']}")
+        project_uuid = project['uuid']['uuid']
+        self._logger.info(f"Found project for submission {project_uuid}")
 
         self._entities = []
         for submission in self.fetch_submissions_in_project(project):
             self.process_submission(submission)
+        if len(self._entities) == 0:
+            raise ValueError(f'No entities found for project {project_uuid}')
 
         self._nodes = self.get_nodes()
         self._edges = self.get_edges()
