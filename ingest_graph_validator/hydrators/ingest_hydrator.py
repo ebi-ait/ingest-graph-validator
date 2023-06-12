@@ -87,12 +87,12 @@ class IngestHydrator(Hydrator):
             self._logger.info(f'finished {entity_num} items of type {entity_type}')
 
     @benchmark
-    def get_nodes(self, entities):
+    def get_nodes(self):
         self._logger.info("importing nodes")
 
         nodes = {}
 
-        for entity in entities:
+        for entity in self._entities:
             node_id = entity['node_id']
             nodes[entity['uuid']] = Node(*entity['labels'],
                                          **entity['properties'],
@@ -105,7 +105,7 @@ class IngestHydrator(Hydrator):
         return nodes
 
     @benchmark
-    def get_edges(self, entities):
+    def get_edges(self):
         self._logger.info("importing edges")
 
         relationship_map = {
@@ -121,7 +121,7 @@ class IngestHydrator(Hydrator):
         }
 
         entity_num = 0
-        for entity in entities:
+        for entity in self._entities:
             for relationship_type in relationship_map.keys():
                 if relationship_type in entity['links']:
                     url = entity['links'][relationship_type]['href']
