@@ -11,8 +11,8 @@ This next query provides the filenames, biomaterial IDs and nucleic acid sources
 #### The test
 [source,cypher]
 ----
-MATCH path = (b:biomaterial)-[:INPUT_TO_PROCESSES]->(p:process)<-[:DERIVED_BY_PROCESSES]-(f:sequence_file), seq_path = (p)-[:PROTOCOLS]-(l:library_preparation_protocol)
+MATCH path = (b:biomaterial)-[:INPUT_TO_PROCESSES]->(p:process)<-[:DERIVED_BY_PROCESSES]-(f:file)
 WHERE NOT b:cell_suspension
 AND NOT b:imaged_specimen
-RETURN f, "File should be linked to a cell suspension", labels(f)
+RETURN f, replace("File should be linked to a cell suspension, not {}", "{}", REDUCE(mergedString = "",word IN labels(b) | mergedString+word+',')), labels(f)
 ----
