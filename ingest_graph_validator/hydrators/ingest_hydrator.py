@@ -32,11 +32,14 @@ class IngestHydrator(Hydrator):
         project_url = self._ingest_api.get_submission_by_uuid(submission_uuid)['_links']['relatedProjects']['href']
         project = self._ingest_api.get(project_url).json()['_embedded']['projects'][0]
 
-        self._logger.info(f"Found project for submission {project['uuid']['uuid']}")
+        project_uuid = project['uuid']['uuid']
+        self._logger.info(f"Found project for submission {project_uuid}")
 
         self._entities = []
         for submission in self.fetch_submissions_in_project(project):
             self.process_submission(submission)
+        if len(self._entities) == 0:
+            raise ValueError(f'No entities found for project {project_uuid}')
 
         self._nodes = self.get_nodes()
         self._edges = self.get_edges()
@@ -44,12 +47,11 @@ class IngestHydrator(Hydrator):
     @benchmark
     def process_submission(self, submission):
         self._logger.info(f"Found submission for project with uuid {submission['uuid']['uuid']}")
-        for entity in self.build_entities_from_submission(submission):
-            self._entities.append(entity)
+        self._entities.extend(list(self.build_entities_from_submission(submission)))
 
     def fetch_submissions_in_project(self, project: dict) -> [dict]:
         self._logger.debug(f"Fetching submissions for project {project['uuid']['uuid']}")
-        url = project['_links']['submissionEnvelopes']['href']
+        url = self._ingest_api.get_link_from_resource(project, link_name='submissionEnvelopes')
         return self._ingest_api.get(url).json()['_embedded']['submissionEnvelopes']
 
     @benchmark
@@ -128,12 +130,12 @@ class IngestHydrator(Hydrator):
                     url = entity['links'][relationship_type]['href']
                     entity_type = relationship_map[relationship_type]
                     relationships = self._ingest_api.get_all(url, entity_type)
+                    start_node = self._nodes[entity['uuid']]
+                    relationship_name = convert_to_macrocase(relationship_type)
                     for end_entity in relationships:
                         if entity_num % self.batch_size == 0:
                             self._logger.info(f'get_edges: completed {entity_num} items')
                         entity_num = entity_num + 1
-                        start_node = self._nodes[entity['uuid']]
-                        relationship_name = convert_to_macrocase(relationship_type)
 
                         try:
                             end_node = self._nodes[end_entity['uuid']['uuid']]

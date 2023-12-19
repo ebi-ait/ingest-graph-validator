@@ -12,8 +12,8 @@ test_requirements = ["pytest>=3", ]
 
 setup(
     name="ingest-graph-validator",
-    version="0.1.0",
-    python_requires=">=3.6",
+    version="1.0.1",
+    python_requires=">=3.10",
     packages=find_packages(include=["ingest_graph_validator", "ingest_graph_validator.*"]),
     description="HCA Ingest Service neo4j graph validator package",
     entry_points={

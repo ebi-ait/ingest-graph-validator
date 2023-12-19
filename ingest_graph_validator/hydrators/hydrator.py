@@ -40,10 +40,13 @@ class Hydrator:
 
         self._logger.info('filling nodes')
         node: Node
+        i:int = 0
         for i, node in enumerate(nodes.values()):
             tx = self.maybe_commit_tx(i, tx)
             tx.create(node)
         tx.commit()
+        if i == 0:
+            raise ValueError('graph did not have any nodes')
 
     def maybe_commit_tx(self, i, tx):
         if i % self.batch_size == 0:
@@ -55,8 +58,11 @@ class Hydrator:
     def fill_edges(self, graph, edges):
         tx = self._graph.begin()
         self._logger.info('filling edges')
-        for i, edge in enumerate(list(edges)):
+        i:int = 0
+        for i, edge in enumerate(edges):
             tx = self.maybe_commit_tx(i, tx)
             tx.create(edge)
 
         tx.commit()
+        if i == 0:
+            raise ValueError('graph did not have any edges')

@@ -3,7 +3,7 @@ FROM quay.io/ebi-ait/ingest-base-images:python_3.10-alpine
 WORKDIR /ingest-graph-validator
 
 # Install build essentials (needed to build some python requirements)
-RUN apk add --no-cache gcc musl-dev libffi-dev python3-dev openssl-dev cargo pkgconfig
+RUN apk add --no-cache gcc musl-dev libffi-dev openssl-dev cargo pkgconfig
 RUN pip install --upgrade pip
 
 # Install cryptography first to get around errors on install

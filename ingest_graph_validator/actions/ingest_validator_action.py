@@ -52,8 +52,10 @@ class ValidationListener(ConsumerMixin):
         self._logger = logging.getLogger(__name__)
 
     def get_consumers(self, consumer, channel):
-        return [consumer(queues=self.validation_queue, accept=["application/json;charset=UTF-8", "json"],
-                         on_message=self.handle_message, prefetch_count=10)]
+        return [consumer(queues=self.validation_queue,
+                         accept=["application/json;charset=UTF-8", "json"],
+                         on_message=self.handle_message,
+                         prefetch_count=10)]
 
     def __patch_entity(self, message, entity_link):
         entity = self._ingest_api.get(entity_link).json()
@@ -94,7 +96,7 @@ class ValidationListener(ConsumerMixin):
                             self._logger.info("Unable to patch entities right now. Probably since the submission "
                                               "state hasn't been updated yet. Retrying...")
                             if retries > 10:
-                                raise Exception(e)
+                                raise RuntimeError(f"exceeded {retries} retries") from e
                 else:
                     self._ingest_api.put(f'{submission_url}/graphValidEvent', data=None)
                 self._logger.info(f'Finished validating {sub_uuid}.')
