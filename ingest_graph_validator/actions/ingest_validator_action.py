@@ -7,9 +7,6 @@ import logging
 import time
 
 import requests.exceptions
-from hca_ingest.api.ingestapi import IngestApi
-from hca_ingest.utils.s2s_token_client import S2STokenClient, ServiceCredential
-from hca_ingest.utils.token_manager import TokenManager
 from kombu import Connection, Exchange, Queue
 from kombu.mixins import ConsumerMixin
 
@@ -17,6 +14,7 @@ from .common import load_test_queries
 from .test_action import TestAction
 from ..config import Config
 from ..hydrators.ingest_hydrator import IngestHydrator
+from ..utils import get_ingest_api
 
 
 class ValidationHandler:
@@ -36,20 +34,11 @@ class ValidationListener(ConsumerMixin):
         self.validation_queue = validation_queue
         self._graph = graph
         self._test_path = test_path
-
-        if Config["INGEST_API"] == "http://localhost:8080" or not (
-            Config["GOOGLE_APPLICATION_CREDENTIALS"] and Config["INGEST_JWT_AUDIENCE"]
-        ):
-            self._ingest_api = IngestApi(Config['INGEST_API'])
-        else:
-            s2s_token_client = S2STokenClient(
-                credential=ServiceCredential.from_file(Config['GOOGLE_APPLICATION_CREDENTIALS']),
-                audience=Config['INGEST_JWT_AUDIENCE']
-            )
-            token_manager = TokenManager(s2s_token_client)
-            self._ingest_api = IngestApi(Config['INGEST_API'], token_manager=token_manager)
-
         self._logger = logging.getLogger(__name__)
+
+        self._ingest_api = get_ingest_api()
+
+
 
     def get_consumers(self, consumer, channel):
         return [consumer(queues=self.validation_queue,
