@@ -11,7 +11,7 @@ from py2neo import Node, Relationship, Graph
 from .common import flatten, convert_to_macrocase
 from .hydrator import Hydrator
 from ..config import Config
-from ..utils import benchmark
+from ..utils import benchmark, get_ingest_api
 
 
 # Example sub_uuid for a small submission (wong retina): 668791ed-deec-4470-b23a-9b80fd133e1c
@@ -27,7 +27,7 @@ class IngestHydrator(Hydrator):
         self.ingest_throttle_period = Config['INGEST_THROTTLE_PERIOD']
         self._logger.info(f"Started ingest hydrator for for submission [{submission_uuid}]")
 
-        self._ingest_api = IngestApi(Config['INGEST_API'])
+        self._ingest_api = get_ingest_api()
 
         project_url = self._ingest_api.get_submission_by_uuid(submission_uuid)['_links']['relatedProjects']['href']
         project = self._ingest_api.get(project_url).json()['_embedded']['projects'][0]
