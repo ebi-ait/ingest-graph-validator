@@ -20,6 +20,7 @@ Defaults = {
     'AMQP_QUEUE_NAME': "ingest.validation.graph.queue",
     'AMQP_ROUTING_KEY': "ingest.validation.graph.queue",
     'NEO4J_IMPORT_BATCH_SIZE': 1000,
+    'ZERO_EDGES_VALIDATION_ENABLED': False,
 }
 
 
@@ -41,6 +42,7 @@ Config = {
     'AMQP_QUEUE_NAME': os.environ.get("AMQP_QUEUE_NAME", Defaults['AMQP_QUEUE_NAME']),
     'AMQP_ROUTING_KEY': os.environ.get("AMQP_ROUTING_KEY", Defaults['AMQP_ROUTING_KEY']),
     'NEO4J_IMPORT_BATCH_SIZE': os.environ.get("INGEST_GRAPH_VALIDATOR_NEO4J_IMPORT_BATCH_SIZE", Defaults['NEO4J_IMPORT_BATCH_SIZE']),
+    'ZERO_EDGES_VALIDATION_ENABLED': os.environ.get("INGEST_GRAPH_VALIDATOR_ZERO_EDGES_VALIDATION_ENABLED", Defaults['ZERO_EDGES_VALIDATION_ENABLED']),
 }
 
 

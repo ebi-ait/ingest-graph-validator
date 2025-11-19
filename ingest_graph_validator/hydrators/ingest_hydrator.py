@@ -33,7 +33,7 @@ class IngestHydrator(Hydrator):
         project = self._ingest_api.get(project_url).json()['_embedded']['projects'][0]
 
         project_uuid = project['uuid']['uuid']
-        self._logger.info(f"Found project for submission {project_uuid}")
+        self._logger.info(f"Found project for submission: {project_uuid}")
 
         self._entities = []
         for submission in self.fetch_submissions_in_project(project):

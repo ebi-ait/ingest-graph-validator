@@ -1,7 +1,6 @@
 # ingest-graph-validator application definition to use as an automated tester in
 # the validation pipeline.
 # Author: Javier Ferrer
-version: "3.5"
 
 services:
   neo4j:

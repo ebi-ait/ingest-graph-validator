@@ -64,5 +64,6 @@ class Hydrator:
             tx.create(edge)
 
         tx.commit()
-        if i == 0:
-            raise ValueError('graph did not have any edges')
+        if Config['ZERO_EDGES_VALIDATION_ENABLED']:
+            if i == 0:
+                raise ValueError('graph did not have any edges')
