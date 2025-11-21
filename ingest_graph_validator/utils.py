@@ -12,8 +12,8 @@ from functools import wraps
 from hca_ingest.api.ingestapi import IngestApi
 from hca_ingest.utils.s2s_token_client import S2STokenClient, ServiceCredential
 from hca_ingest.utils.token_manager import TokenManager
-
-from ingest_graph_validator.config import Config
+from .logger import init_logger
+from .config import Config
 
 
 def benchmark(function):
@@ -43,6 +43,8 @@ def download_file(url, destination_filename):
     return destination_filename
 
 def get_ingest_api():
+    log_level = Config['LOG_LEVEL']
+    init_logger("get_ingest_api", log_level)
     _logger = logging.getLogger("get_ingest_api")
     api = None
     if Config["INGEST_API"] == "http://localhost:8080" or not (

@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../ingest-exporter"
+		},
+		{
+			"path": "../ingest-core"
+		},
+		{
+			"path": "../ingest-kube-deployment"
+		}
+	],
+	"settings": {
+		"java.configuration.updateBuildConfiguration": "interactive"
+	}
+}
